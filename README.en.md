@@ -156,7 +156,7 @@ Packaging a portable ZIP (for developers):
 .\release_win.ps1 -NoModel   # NoModel: includes CUDA, no model, downloaded online on first launch (~1-1.5GB)
 ```
 
-Pushing a `v*` tag triggers `.github/workflows/release.yml`, which builds both the Lite and NoModel versions and publishes them only after the ZIP CRC, UTF-8 filenames, and required resources pass validation (manually triggering via `workflow_dispatch` only produces build artifacts). See [`docs/RELEASE_VERIFICATION.md`](docs/DEVELOPMENT.md) for the full Windows verification procedure; `.github/workflows/dependency-freshness.yml` checks monthly whether `requirements-win.txt`/`requirements-cuda-win.txt` are behind the latest versions on PyPI.
+Pushing a `v*` tag triggers `.github/workflows/release.yml`, which builds both the Lite and NoModel versions and publishes them only after the ZIP CRC, UTF-8 filenames, and required resources pass validation (manually triggering via `workflow_dispatch` only produces build artifacts). See the "Windows Release 實機驗證" section in [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md) for the full Windows verification procedure; `.github/workflows/dependency-freshness.yml` checks monthly whether `requirements-win.txt`/`requirements-cuda-win.txt` are behind the latest versions on PyPI.
 
 ## Settings
 
