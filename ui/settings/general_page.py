@@ -146,7 +146,7 @@ class GeneralPageMixin:
         if platform.system() == "Windows":
             self.btn_run_self_check.hide()
 
-        # Mac 主線 11-3（v2.9.11 崩潰診斷管道，docs/mac-mainline-absorption-analysis.md）
+        # 移植自 Mac 主線 v2.9.11（崩潰診斷管道）
         # 移植 + Windows 化改寫：一鍵匯出診斷包（環境資訊＋裝置清單＋日誌＋脫敏設定）
         self.btn_export_diagnostics = QPushButton("📦 匯出診斷包 (Export Diagnostics)")
         self.btn_export_diagnostics.setObjectName("secondary")

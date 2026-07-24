@@ -11,6 +11,7 @@
 ### Changed
 
 - **文件整理**：`docs/BRANDING.md` 併入 `docs/DECISIONS.md`、`quality_control_checklist.md` 併入 `docs/RELEASE_VERIFICATION.md` 附錄，兩份孤兒文件刪除，關鍵事實無遺失。
+- **文件整理（第二批之一）**：`docs/mac-mainline-absorption-analysis.md` 的「建議不吸收清單」（含前瞻價值的 8-1／13-4／10-1／7-7 等項）精簡後併入 `docs/UPSTREAM.md` 新增小節「Mac 主線分析：評估後不吸收」；9 個檔案的程式碼註解/docstring 出處引用簡化為版本號（如「Mac 主線 v2.9.7」），移除檔名路徑與項目編號；分析檔刪除。
 
 ### Added
 

@@ -1,7 +1,7 @@
 """Ported from the Mac mainline (`git show 51094bf:test_stt_language_selection.py`).
 
-Regression test for the bug found via `docs/mac-mainline-absorption-analysis.md`
-item 16-3: `ui/app.py`'s `_process_audio` used to read `translation_lang` and feed
+Regression test for the bug found via the Mac mainline v2.9.16 absorption review:
+`ui/app.py`'s `_process_audio` used to read `translation_lang` and feed
 it straight to `self.stt.transcribe(audio_data, language=lang)`. Translation is
 an LLM output-layer concern (see `active_scenario` prompt selection); once a
 user picked "translate to English" once, `translation_lang` stayed `"en"` in

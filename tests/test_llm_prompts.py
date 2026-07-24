@@ -1,4 +1,4 @@
-"""測試 Mac 主線 13-1（`docs/mac-mainline-absorption-analysis.md`）移植：
+"""測試 Mac 主線 v2.9.13 移植：
 `llm/prompts.py` 集中化 system prompt + 各引擎 `refine()` 的
 `prompt or get_default_system_prompt(language)` fallback。
 

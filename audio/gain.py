@@ -5,14 +5,13 @@ needing `sounddevice` installed (audio/recorder.py imports sounddevice at
 module load time and therefore cannot be imported in an environment that
 lacks the PortAudio bindings; this module only depends on numpy).
 
-Ported from the Mac mainline (`git show 51094bf:audio/recorder.py`, v2.9.7,
-items 7-2/7-3 in docs/mac-mainline-absorption-analysis.md):
-- 7-2 manual gain: real PCM amplification (not just a visual meter), 50~300
+Ported from the Mac mainline (`git show 51094bf:audio/recorder.py`, v2.9.7):
+- manual gain: real PCM amplification (not just a visual meter), 50~300
   (%), clipped to int16 range.
-- 7-3 AGC: an independent `_agc_factor` that adapts to recent peak loudness
+- AGC: an independent `_agc_factor` that adapts to recent peak loudness
   without ever overwriting the user's manual gain setting.
 
-Also holds the item 7-4 post-recording silence precheck (same source file,
+Also holds the post-recording silence precheck (same source file,
 `51094bf:audio/recorder.py:8,158-163`): after stop(), if the loudest chunk of
 the whole recording never rose above SILENCE_THRESHOLD, the recording is
 flagged silent so the caller can skip an STT round-trip entirely instead of

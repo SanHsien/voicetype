@@ -1,8 +1,7 @@
 """Mac 主線 13-2（`git show 51094bf:stt/mlx_whisper.py`）移植回歸測試。
 
 驗證 faster-whisper 的 transcribe() 呼叫有帶入抗幻覺參數：
-`no_speech_threshold=0.6` + `condition_on_previous_text=False`。
-見 docs/mac-mainline-absorption-analysis.md 項目 13-2。
+`no_speech_threshold=0.6` + `condition_on_previous_text=False`（移植自 Mac 主線 v2.9.13）。
 
 另含 2026-07-20 bug fix 回歸測試：worker 端過去從未讀取 IPC 訊息的 "prompt"
 欄位（client 端 `SubprocessWhisperSTT.transcribe()` 送出的

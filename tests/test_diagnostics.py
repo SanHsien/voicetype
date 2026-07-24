@@ -1,4 +1,4 @@
-"""測試 Mac 主線 11-3（`docs/mac-mainline-absorption-analysis.md`）移植 + Windows 化
+"""測試 Mac 主線 v2.9.11 移植 + Windows 化
 改寫：utils/diagnostics.py 的診斷包匯出工具。
 
 不觸碰真實桌面目錄：export_diagnostic_bundle 的 desktop_dir/app_data_dir 一律傳

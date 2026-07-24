@@ -44,6 +44,22 @@
 | `main`（Mac 線） | [`10b2fc8`](https://github.com/jfamily4tw/voicetype4tw-mac/commit/10b2fc8) | fix: keep hotkey watchdog recovering | 2026-07-20 | macOS 專屬（CGEventTap watchdog），本 fork 熱鍵走 Win32 `GetAsyncKeyState` 輪詢架構，不適用。 |
 | `main`（Mac 線） | [`805b007`](https://github.com/jfamily4tw/voicetype4tw-mac/commit/805b007) | release: v2.9.18 mac apple local correction | 2026-07-22 | Apple Foundation Models 整套、Mac 打包鏈與 Mac 專屬 UI 改動是 macOS 26 專屬，Windows 無對應物；`COMMON_ALIAS_CORRECTIONS` 是原作者個人別名，無普遍價值。其中 3 項平台無關修正已另行吸收，見 CHANGELOG v3.3.0：vocab 短 ASCII 縮寫守衛、OpenCC 簡轉繁後處理概念（獨立實作為 `utils/zh_convert.py`）、學習詞排序穩定化。 |
 
+## Mac 主線分析：評估後不吸收
+
+> 2026-07-20 對 Mac 主線 tip `51094bf`（v2.9.16）相對分岔點 v2.9.6（`b9f997b`）的逐版逐項吸收分析（原 `docs/mac-mainline-absorption-analysis.md`，已於文件整理批次併入本檔並移除）。可攜／需改寫兩類項目（共 15 項）已全數吸收或有明確處置，詳見 `CHANGELOG.md`；以下為評估後**明確不吸收**的項目，保留理由供日後回掃參考。
+
+| 項目 | 理由 |
+|---|---|
+| 7-7 設定頁版面調整（QGridLayout 對齊、白色 slider QSS、warmup 進度條） | 現樹設定頁已大幅分岔（自行迭代過 Settings UI Refinements），Mac 版面 patch 無法直接套；已隨麥克風裝置選擇（7-1）批次做時順手參考版面，不單獨吸收。 |
+| 8-1 MiniMax LLM 引擎 | 純 HTTP API 可攜，但是否採用屬產品決策（維護者是否使用 MiniMax），技術上可攜但預設引擎清單變更需維護者拍板。 |
+| 10-1 target_pid 精準注入（`CGEventPostToPid` 等效：Win32 `GetForegroundWindow`/`SetForegroundWindow`） | 概念值得（Windows 同樣有長轉錄期間切視窗貼錯地方的風險），惟需全新 Win32 接線且有 `SetForegroundWindow` 前景鎖定限制地雷；建議等使用者實際回報貼錯視窗再立項。 |
+| 11-1 CGEventTap 三層自癒、11-2 keystrike log 改 queue | macOS event tap 專屬失效模式（callback 超時被系統靜默停用），Windows 低階鍵盤 hook 架構無此病。 |
+| 12-1/12-2/13-5/13-6/13-7 打包鏈修復（codesign reseal、libssl rpath、MLX 版本 pin、entitlements、warmup noop） | macOS 簽章／MLX／dylib 專屬，Windows 打包鏈（`release_win.ps1`）無對應物。 |
+| 13-4 default `llm_engine` 改 openrouter | 一行改動但屬產品決策：無 OpenRouter key 的使用者體驗未必較好，需維護者確認。 |
+| 14-1 MLX Whisper GPU thread-safety lock（class-level `_gpu_lock`） | MLX/Metal command queue 專屬考量，現樹無 MLX；若日後併發轉錄（熱鍵路徑 vs 全時模式）出現崩潰，可回頭參考其「class-level 序列化」思路。 |
+| 15-4 設定頁模型順序修復（`MODEL_META` dict 順序） | 現樹設定頁無同構的 `MODEL_META` 結構，Mac 版一致性 bug 不存在於現樹。 |
+| 16-5 模型外部快取目錄 + symlink | 現樹 `bundled_models/` 隨附模型機制已用不同方式滿足同一需求。 |
+
 ## Upstream remote
 
 ```
@@ -64,7 +80,7 @@ git remote add upstream https://github.com/jfamily4tw/voicetype4tw-mac.git
 |---|---|---|---|
 | `win-stable` | `b694e40`（release(win): mark win-go-mask v3.0.1，2026-07-08） | 已完整併入 | v3.0.1 基底，本 fork 早期歷史直接構築於此分支之上。 |
 | `win-go-mask-202607` | `e5ddc02`（Assets: regenerate README screenshots from the live V3.0.1 UI，2026-07-20） | 已併入（merge commit `12f51d6`） | 內容：三步驟安裝流程、README 改寫、新截圖。**例外**：其 `paths.py`（`VERSION_NAME`/`BUILD_ID`）與 `voicetype_installer.iss`（`MyAppVersion`/`OutputBaseFilename`）版本字串未採用——installer 那筆是 `MyAppVersion "2.8.27_V90"`，明顯是上游誤植降版（早於本 fork 當時的 3.0.1），本樹版本號自行管理，不隨上游該筆走。 |
-| `main`（Mac 線） | 程式碼不追蹤；fork 分岔點 `51094bf`（Revise README contributors and version info，v2.9.16，2026-07-08） | 不併入程式碼，僅分析吸收 | `51094bf` 是 Mac 主線與本 fork 的共同祖先，作為「Mac 功能吸收分析」的基準點，詳細逐版逐項分析見 [`docs/mac-mainline-absorption-analysis.md`](./mac-mainline-absorption-analysis.md)。其後的 Mac 專屬修復 `0ed0c47`（fix: clean up runtime on native macOS quit）與 `10b2fc8`（fix: keep hotkey watchdog recovering）評估為 macOS 平台專屬，不適用於 Windows 樹。LICENSE 另取自 `main` 分支 tip `46346d3`（docs: add MIT license and contribution guide，2026-07-20）——雙軌授權因此收斂為全 MIT。 |
+| `main`（Mac 線） | 程式碼不追蹤；fork 分岔點 `51094bf`（Revise README contributors and version info，v2.9.16，2026-07-08） | 不併入程式碼，僅分析吸收 | `51094bf` 是 Mac 主線與本 fork 的共同祖先，作為「Mac 功能吸收分析」的基準點，詳細逐版逐項分析已併入本檔上方「Mac 主線分析：評估後不吸收」小節（原獨立檔 `docs/mac-mainline-absorption-analysis.md` 已於文件整理批次移除）。其後的 Mac 專屬修復 `0ed0c47`（fix: clean up runtime on native macOS quit）與 `10b2fc8`（fix: keep hotkey watchdog recovering）評估為 macOS 平台專屬，不適用於 Windows 樹。LICENSE 另取自 `main` 分支 tip `46346d3`（docs: add MIT license and contribution guide，2026-07-20）——雙軌授權因此收斂為全 MIT。 |
 
 ## Squash 後的雙親關係
 

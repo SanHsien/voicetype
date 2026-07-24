@@ -1,10 +1,10 @@
 """Unit tests for audio/gain.py — pure PCM gain/AGC math ported from the Mac
 mainline (`git show 51094bf:audio/recorder.py`, v2.9.7).
 
-Covers docs/mac-mainline-absorption-analysis.md items:
-- 7-2 manual gain: real PCM amplification (not just a UI meter), clipped.
-- 7-3 AGC: independent dynamic factor that never overwrites manual gain.
-- 7-4 silence precheck: skip STT entirely when the whole recording's peak
+Covers Mac mainline v2.9.7 items:
+- manual gain: real PCM amplification (not just a UI meter), clipped.
+- AGC: independent dynamic factor that never overwrites manual gain.
+- silence precheck: skip STT entirely when the whole recording's peak
   RMS never rises above SILENCE_THRESHOLD.
 
 This module deliberately has no sounddevice/PyQt6 dependency (see module
@@ -120,7 +120,7 @@ class UpdateAgcFactorTest(unittest.TestCase):
 
 
 class PeakRmsAndSilenceTest(unittest.TestCase):
-    """7-4: post-recording silence precheck (docs/mac-mainline-absorption-analysis.md)."""
+    """Post-recording silence precheck (Mac mainline v2.9.7)."""
 
     def test_peak_rms_of_empty_frames_is_zero(self):
         self.assertEqual(peak_rms([]), 0.0)

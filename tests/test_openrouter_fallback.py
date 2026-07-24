@@ -1,5 +1,5 @@
 """Ported from the Mac mainline (`git show 51094bf:test_openrouter_fallback.py`,
-v2.9.16, item 16-4 in docs/mac-mainline-absorption-analysis.md).
+v2.9.16).
 
 llm/openrouter.py's default model `google/gemini-2.0-flash-001` carries
 deprecation risk on OpenRouter -- if it gets pulled, LLM refinement silently

@@ -1,4 +1,4 @@
-"""測試 Mac 主線 7-5（`docs/mac-mainline-absorption-analysis.md`）移植：LLM 未啟用時
+"""測試 Mac 主線 v2.9.7 移植：LLM 未啟用時
 的輕量版靈魂規則（贅詞清除）。純邏輯測試，見 utils/soul_rules.py。
 """
 import unittest
