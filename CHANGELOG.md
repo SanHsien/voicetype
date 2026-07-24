@@ -8,6 +8,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **文件整理**：`docs/BRANDING.md` 併入 `docs/DECISIONS.md`、`quality_control_checklist.md` 併入 `docs/RELEASE_VERIFICATION.md` 附錄，兩份孤兒文件刪除，關鍵事實無遺失。
+
 ### Added
 
 - **真人 VAD 對照驗證器**：新增 `tests/manual/manual_audio_vad_check.py`，讓正常說話、咳嗽、呼吸與環境雜音各只錄一次，再以同一份 PCM 公平比較 RMS／真 Silero，輸出不含原始音訊的 JSON／Markdown 證據；指定 release root 時會反查實際 module 來源，避免誤用 checkout 產生假 PASS。
