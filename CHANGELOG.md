@@ -10,9 +10,10 @@
 
 ### Changed
 
-- **文件整理**：`docs/BRANDING.md` 併入 `docs/DECISIONS.md`、`quality_control_checklist.md` 併入 `docs/RELEASE_VERIFICATION.md` 附錄，兩份孤兒文件刪除，關鍵事實無遺失。
+- **文件整理**：`docs/BRANDING.md` 併入 `docs/DECISIONS.md`、`quality_control_checklist.md` 併入（原）`docs/RELEASE_VERIFICATION.md` 附錄（現已隨該檔一併併入 `docs/DEVELOPMENT.md`，見下方文件整理第三批），兩份孤兒文件刪除，關鍵事實無遺失。
 - **文件整理（第二批之一）**：`docs/mac-mainline-absorption-analysis.md` 的「建議不吸收清單」（含前瞻價值的 8-1／13-4／10-1／7-7 等項）精簡後併入 `docs/UPSTREAM.md` 新增小節「Mac 主線分析：評估後不吸收」；9 個檔案的程式碼註解/docstring 出處引用簡化為版本號（如「Mac 主線 v2.9.7」），移除檔名路徑與項目編號；分析檔刪除。
 - **文件整理（第二批之二）**：根目錄 `windows_cuda_qt_crash_postmortem.md`（PyQt6/CUDA 崩潰 postmortem）併入 `docs/DEVELOPMENT.md`「Windows 已知地雷」章節，`AGENTS.md`/`CLAUDE.md`/`SKILL.md`/`docs/REFERENCES.md`/`tests/manual/manual_qkey_check.py` 的引用同步改指向；原檔刪除。
+- **文件整理（第二批之三）**：`docs/RELEASE_VERIFICATION.md`（含前批併入的 QC checklist 附錄）併入 `docs/DEVELOPMENT.md`「Windows Release 實機驗證」章節，README/README.en 連結目標改指 `docs/DEVELOPMENT.md`（敘述文字不動），REVIEW/docs/DECISIONS 引用同步更新；原檔刪除。
 
 ### Added
 
@@ -41,7 +42,7 @@
 
 ### Added
 
-- **驗證暫存清理手冊**：`docs/RELEASE_VERIFICATION.md` 新增安全清理方式，刪除前必須確認完整路徑位於 `%TEMP%`；另記錄受控自動化環境攔截 `Remove-Item -Recurse` 時的 .NET fallback。
+- **驗證暫存清理手冊**：（原）`docs/RELEASE_VERIFICATION.md`（現併入 `docs/DEVELOPMENT.md`）新增安全清理方式，刪除前必須確認完整路徑位於 `%TEMP%`；另記錄受控自動化環境攔截 `Remove-Item -Recurse` 時的 .NET fallback。
 
 ### Fixed
 
@@ -51,7 +52,7 @@
 
 ### Fixed
 
-- **Windows Release ZIP 中文檔名損毀**：v3.4.0 的 release workflow 使用 Windows `tar.exe -a` 建 ZIP；英文 runner 的 ANSI code page 無法表示中文，導致 7 個檔名在壓縮當下被替換成 literal `?`，Windows `Expand-Archive` 因非法檔名直接失敗。改用 .NET `ZipArchive` 明確寫 UTF-8 entry name，新增 `tools/verify_release_zip.py` 與 CI 上傳前 gate，檢查 CRC、重複／損壞檔名、UTF-8 flag 及 7 個必要中文資源。驗證方法見 `docs/RELEASE_VERIFICATION.md`。
+- **Windows Release ZIP 中文檔名損毀**：v3.4.0 的 release workflow 使用 Windows `tar.exe -a` 建 ZIP；英文 runner 的 ANSI code page 無法表示中文，導致 7 個檔名在壓縮當下被替換成 literal `?`，Windows `Expand-Archive` 因非法檔名直接失敗。改用 .NET `ZipArchive` 明確寫 UTF-8 entry name，新增 `tools/verify_release_zip.py` 與 CI 上傳前 gate，檢查 CRC、重複／損壞檔名、UTF-8 flag 及 7 個必要中文資源。驗證方法見 `docs/DEVELOPMENT.md`「Windows Release 實機驗證」。
 - **Patch 版產物名稱**：可攜包檔名改採完整 semver，v3.4.1 產物不再沿用容易與 v3.4.0 混淆的 `v3.4` 名稱。
 
 ## [3.4.0] - 2026-07-23

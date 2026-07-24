@@ -2,7 +2,7 @@
 
 - **日期**：2026-07-24
 - **Review 對象**：`main` 分支（`a1284f5` 自動化基線）、正式發佈 `v3.4.3`（tag commit `d672a02`）
-- **方法**：重新 fetch 並核對基線、全樹差異覆核；GitHub Python 3.10–3.14 五版本 CI（run `30028699102`，每版 **464 passed**）；正式 v3.4.3 資產沿用前輪重新下載、SHA-256、CRC、UTF-8 filename 與 Windows `Expand-Archive` 證據。本輪另以正式 Lite runtime 執行最新 source：Settings／About callback 與原生 widget 截圖、Computer Use 操作 About、VoxProse `TextInjector` 貼字到記事本、設定頁真三秒 callback 取得 `LINE.exe`；本輪未重新建置可攜包。真人有效音量、真 API key 與前景情境 LLM 端到端仍依 `docs/RELEASE_VERIFICATION.md` 標為 `BLOCKED`／待驗證，未用自動化結果代替。
+- **方法**：重新 fetch 並核對基線、全樹差異覆核；GitHub Python 3.10–3.14 五版本 CI（run `30028699102`，每版 **464 passed**）；正式 v3.4.3 資產沿用前輪重新下載、SHA-256、CRC、UTF-8 filename 與 Windows `Expand-Archive` 證據。本輪另以正式 Lite runtime 執行最新 source：Settings／About callback 與原生 widget 截圖、Computer Use 操作 About、VoxProse `TextInjector` 貼字到記事本、設定頁真三秒 callback 取得 `LINE.exe`；本輪未重新建置可攜包。真人有效音量、真 API key 與前景情境 LLM 端到端仍依 `docs/DEVELOPMENT.md`「Windows Release 實機驗證」標為 `BLOCKED`／待驗證，未用自動化結果代替。
 
 ---
 
@@ -63,7 +63,7 @@ v3.4.1 已修正 ZIP 中文檔名，v3.4.2 再補上 STT readiness 契約與 fai
 | 28-2 | `_sync_preload_models()` 把非同步 subprocess warmup 當成同步完成，worker 尚未 ready 就設 `_models_ready=True` 並顯示設定 UI | 中（啟動狀態與真實 readiness 不一致） | ✅ 已修（`7778e13`，2026-07-23） | `warmup()` 現等待 worker 的 `ready`＋帶成功狀態的 `warmup_done`；error、程序死亡、pipe 關閉或 reader 失敗均撤銷 ready 並拋錯。首次模型下載不設絕對 timeout，避免慢網路超時後永久卡住。8 項回歸測試；Windows 真 worker tiny CPU int8 首次 11.12 秒、快取後 1.52 秒；正式 v3.4.2 Lite 解壓目錄 warmup 2.14 秒，皆只在完成後 PASS。 |
 | 28-3 | Computer Use/UIA 操作封裝 UI 時，app 兩度以 Windows fatal exception `0x8001010d` 消失 | 中（需重現歸因） | 🔍 真人環境重驗 | `main_crash.log` 兩次都停在 `ui/app.py:173 app_inst.exec()`，無正常 shutdown；本輪 Computer Use 已成功操作 About、記事本貼字及 LINE 切窗，QA process 全程 responding，crash log 最後修改時間仍為 2026-07-23 23:12、未新增崩潰。這降低一般操作可重現性，但仍不足以取代「不掛 UI Automation」的真人點擊，故維持 🔍。 |
 | 28-4 | `manual_stt_warmup_check.py` 的來源 override 指錯時仍可能從 cwd 匯入 repo，讓「正式包 PASS」測到原始碼 | 高（驗證可產生假陽性） | ✅ 已修（`119836a`，2026-07-23） | override 先驗 `stt/subprocess_whisper.py` 存在，import 後再要求模組 `__file__` 位於指定 root。不存在路徑實測 exit 1；正式 v3.4.2 解壓目錄實測列出正確 module path 並 PASS。 |
-| 28-5 | 暫存清理範例只用 `StartsWith($TempBase)`，會把 `%TEMP%` 本身也判為可遞迴刪除 | 高（可能誤刪整個暫存根目錄） | ✅ 已修（`119836a`，2026-07-23） | `docs/RELEASE_VERIFICATION.md` 現拒絕空白、明確拒絕 target 等於 temp root，並要求 canonical target 以 temp child prefix 開頭；.NET fallback 沿用同一 guard。負向／合法子目錄案例均實測通過。 |
+| 28-5 | 暫存清理範例只用 `StartsWith($TempBase)`，會把 `%TEMP%` 本身也判為可遞迴刪除 | 高（可能誤刪整個暫存根目錄） | ✅ 已修（`119836a`，2026-07-23） | `docs/DEVELOPMENT.md`「Windows Release 實機驗證」現拒絕空白、明確拒絕 target 等於 temp root，並要求 canonical target 以 temp child prefix 開頭；.NET fallback 沿用同一 guard。負向／合法子目錄案例均實測通過。 |
 | 28-6 | `9f95aa1` 把 `self.tray.run()` 換成 `app_inst.exec()` 時漏掉隱含的 `tray.start()`，Windows 系統匣從未建立 | 中高（基本 UI 功能缺失） | ✅ 已修（`d672a02`，2026-07-23） | `run()` 現在模型／全時模式準備後先啟動 tray，再啟動 hotkey。新增 AST 順序回歸測試；正式 v3.4.3 Lite 包內 Qt live object 回讀 `visible=True`、`tooltip=聲成文`、icon 非空。 |
 | 28-7 | tray 品牌列沒有 callback；Settings／About 在 QAction callback 內搶前景，且 modal About 會阻塞其他 app 視窗 | 中（使用者點擊像沒反應） | ✅ 已修（`d672a02`，2026-07-23） | 品牌列與偏好設定均開 Settings；視窗顯示後延遲到 menu 關閉再 activate，About 改保留單一 modeless instance。正式 v3.4.3 Lite 包內 Qt callback 驗證 Settings 1200×840 與 About 680×720 同時 visible、非 minimized；widget 原生截圖確認 About 無裁切／重疊。 |
 | 28-8 | 舊龍圖含不可讀文字，About 固定 320×430 導致版本與完整署名裁切／重疊 | 中低（品牌與可讀性） | ✅ 已修（`d672a02`，2026-07-23） | 新增透明語音泡泡＋麥克風＋波形標誌，更新 PNG／tray PNG／多尺寸 ICO；About 改可縮放、可捲動的 680×720 版面並保留完整署名鏈。正式 v3.4.3 Lite 截圖確認無鮮綠底、裁切或重疊。 |

@@ -41,7 +41,7 @@
 - **事故**：GitHub v3.4.0 的 Lite／NoModel workflow 顯示成功，但 Lite 資產實際無法由 Windows `Expand-Archive` 解壓。中央目錄有 7 個中文檔名被寫成 literal `?`：3 個根目錄說明／啟動檔與 4 個 `soul/scenario` 情境模板。
 - **根因**：`release_win.ps1` 用 Windows `tar.exe -a` 建 ZIP。bsdtar 的 Windows ZIP 路徑經系統 ANSI code page，且未設定 ZIP UTF-8 filename flag；繁中 CP950 主機會留下未標示編碼的 raw bytes，英文 GitHub runner 則在壓縮當下把無法表示的中文字逐字替換成 ASCII `0x3F`。workflow 的 `PYTHONUTF8`／`PYTHONIOENCODING` 只影響 Python，對 native `tar.exe` 無效。
 - **修法**：改用 .NET `ZipArchive` 並指定 `Encoding.UTF8`；保留頂層 release 目錄，ZIP64 由 .NET 自動處理。以 65,536 entries 實包確認 ZIP64 EOCD／locator 存在，Windows PowerShell 5.1 路徑亦實建成功。
-- **防回歸**：新增 `tools/verify_release_zip.py`，在 hash／artifact upload／Release 發佈前檢查 CRC、重複 entry、literal `?`／replacement character、非 ASCII UTF-8 flag，以及 7 個必要中文資源。完整操作方式與 `PASS`／`FAIL`／`BLOCKED` 判定見 `docs/RELEASE_VERIFICATION.md`。
+- **防回歸**：新增 `tools/verify_release_zip.py`，在 hash／artifact upload／Release 發佈前檢查 CRC、重複 entry、literal `?`／replacement character、非 ASCII UTF-8 flag，以及 7 個必要中文資源。完整操作方式與 `PASS`／`FAIL`／`BLOCKED` 判定見 `docs/DEVELOPMENT.md`「Windows Release 實機驗證」章節。
 - **實證**：原 GitHub Lite 資產（236,740,232 bytes，SHA-256 `84b7adf693d2234a7be7fa3482404d4567eca13a7ddc951a35d617544d6101b5`）validator 必然失敗；修正版 Lite（240,477,115 bytes）共 16,279 entries、全檔 CRC 通過、7 個中文資源皆有 UTF-8 flag，Windows `Expand-Archive` 完整成功且 7 檔 hash 與 staging 相同。
 - **發佈判定與收尾**：workflow 綠燈不再等同 release 可用。v3.4.1 為修此 bug 的中間版，後續即被 v3.4.2（STT readiness）取代並依慣例移除 GitHub release／tag，僅保留於版本沿革；目前可下載的最新版本為 v3.4.3（其資產雜湊見 `REVIEW.md`，可實際核對）。
 
