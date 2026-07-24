@@ -223,6 +223,13 @@ Apple Foundation Models 整套、Mac 打包鏈、Mac 專屬 UI 改動、`COMMON_
 - **決定（`voicetype_installer.iss` 只改規格明列的兩個欄位）**：`MyAppName`／`AppId` 本次不在授權範圍內，維持原樣（代表安裝檔名與 Start Menu 顯示名稱暫時不一致，屬刻意範圍邊界）。
 - **決定（不改 `%APPDATA%\VoiceType4TW` 等實際路徑值）**：維護者明確指示第一階段不動，已用 grep 核對未被觸碰。
 
+## 2026-07-21 — 品牌規格定案表與署名鏈補充（原 `docs/BRANDING.md`，內容併入本檔）
+
+- **品牌呈現細節補充**（中文品牌／英文品牌／中文標語已見上一則決策，此處補完整名稱與英文標語）：完整名稱「聲成文｜本地優先 AI 語音輸入工具」；英文副標「Local-first AI Voice Typing for Traditional Chinese」；英文標語「Speak naturally. Write clearly.」。
+- **署名鏈三層**（NOTICE／README／About／AGENTS.md 均需完整呈現）：①原創作者吉米丘（Jimmy）、CC58TW；②上游 Windows 專用版維護 go-mask（`win-go-mask-202607` 分支）；③本 fork（Windows）維護 SanHsien。
+- **「無遷移邏輯」決定不重複**：第一階段保留理由與第二階段推翻理由（本機從未實際使用過本程式，無真實資料需要遷移，六條遷移原則因此整批作廢不實作）已完整記錄於上一則「品牌改名第二階段」條目，此處不重寫。
+- `docs/BRANDING.md` 全篇內容經核對後確認無獨家未記錄資訊，本則僅補上一則決策未逐字列出的品牌呈現細節與署名三層列表；原檔已刪除。
+
 ## 2026-07-21 — 上游更新自動檢查：`last_merged`／`last_reviewed` 雙欄設計
 
 - **決定（雙欄設計）**：`last_merged`（已合併的最後上游 commit）與 `last_reviewed`（已審視過，含決定不採用者）分開記錄，避免「有沒有合併」當判準會讓不適用的 macOS 專屬 commit 永遠重複回報成雜訊。
