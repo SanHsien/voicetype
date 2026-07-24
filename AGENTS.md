@@ -14,7 +14,7 @@
 - 授權引用以現況為準：上游已於 2026-07-20 補齊 MIT 授權，本 fork 整體採 MIT——見 `LICENSE` 與 `NOTICE.md`（過去上游未補齊授權前的雙軌查證過程僅作背景記錄，已不適用，勿在新文件中重述為現況）。
 - 不提交 API key（Groq / OpenAI / Anthropic / Gemini / OpenRouter / Qwen / DeepSeek 等）、`config_local.json`、`config_global.json`、`sync_path.txt`、使用者 `soul.md`、`memory/*.json`、`vocab/*.json`、`audio/*.wav`、`output/*.txt`、`bundled_models/` 等本機/私密/大型資料（`.gitignore` 已涵蓋，勿反向強制加回）。
 - **不破壞既有打包鏈**：`setup_win.bat`（環境建置：偵測/安裝 Python、建 venv、裝 `requirements-win.txt` + 視 GPU 裝 `requirements-cuda-win.txt`、下載 Whisper 模型、建捷徑）、`build_win.py`（PyInstaller 打包 exe）、`release_win.ps1`（自建可攜 ZIP：內嵌 Python + 全部依賴 + medium 模型）、`voicetype_installer.iss`（Inno Setup 安裝程式）——除非任務明確要求，不修改這些檔案；改動 `main.py`/`paths.py`/`config.py` 的路徑或啟動邏輯時，必須確認不會讓這條鏈斷掉。
-- **Windows 上 PyQt6 與 CUDA 的載入順序有致命衝突**（見 `windows_cuda_qt_crash_postmortem.md`）：`main.py` 透過 `stt/__init__.py` 的 `get_stt()` 在 Windows 上強制走 `SubprocessWhisperSTT`（獨立子行程跑 CTranslate2/faster-whisper，避免與同行程的 PyQt6 事件迴圈衝突）。修改啟動流程或 STT 掛載方式時，**不要**把 Whisper 模型改回與 PyQt6 同行程載入。
+- **Windows 上 PyQt6 與 CUDA 的載入順序有致命衝突**（見 `docs/DEVELOPMENT.md`「Windows 已知地雷」的 postmortem）：`main.py` 透過 `stt/__init__.py` 的 `get_stt()` 在 Windows 上強制走 `SubprocessWhisperSTT`（獨立子行程跑 CTranslate2/faster-whisper，避免與同行程的 PyQt6 事件迴圈衝突）。修改啟動流程或 STT 掛載方式時，**不要**把 Whisper 模型改回與 PyQt6 同行程載入。
 
 ## 架構速覽
 
@@ -64,7 +64,7 @@ output/injector.py  ui/ (PyQt6)   actions/ 分派   vocab/ + memory/ + stats/
 - **Windows 為唯一開發與執行環境**：不要假設或新增 macOS 專屬 API（`AppKit`/`Quartz`/`py2app`/`pyobjc-*`）——這些在目前工作樹中已不存在，`hotkey/listener.py`、`stt/__init__.py` 均已是 Windows-only 實作，沒有跨平台分支需要維護。
 - **不動打包鏈**：`setup_win.bat`、`build_win.py`、`release_win.ps1`、`voicetype_installer.iss`、`tools/get_portable_python.ps1`、`tools/launcher.cs` 除非任務明確要求，不修改。
 - **依賴管理**：實際安裝以 `requirements-win.txt`（一般依賴）+ `requirements-cuda-win.txt`（NVIDIA GPU 才需要，`setup_win.bat` 偵測 `nvidia-smi` 後才裝）為準；本次新增的 `pyproject.toml` 只提供 metadata 與 `pytest` 設定，**不取代**這兩個 `requirements-*.txt`，也不要讓開發者改成 `pip install -e .` 當作唯一安裝方式。
-- **Windows 已知地雷**：見根目錄 `windows_cuda_qt_crash_postmortem.md`——PyQt6 DLL 若先於 CUDA/`faster-whisper` 載入會導致無訊息崩潰（Exit Code 1），因此 Windows 上 STT 一律走獨立子行程（`stt/subprocess_whisper.py`）而非與 UI 同行程；另有右 Alt 鍵可能被系統回報為 `alt_gr` 而非 `alt_r`、`ToolTip` 視窗類型在 Windows 需改用 `Tool | FramelessWindowHint | WindowStaysOnTopHint`、中文字型需強制指定（如 `Microsoft JhengHei`）等已記錄地雷。改動 `main.py` 開頭的環境變數設定或 STT 掛載順序時務必重讀此文件。
+- **Windows 已知地雷**：見 `docs/DEVELOPMENT.md`「Windows 已知地雷」章節——PyQt6 DLL 若先於 CUDA/`faster-whisper` 載入會導致無訊息崩潰（Exit Code 1），因此 Windows 上 STT 一律走獨立子行程（`stt/subprocess_whisper.py`）而非與 UI 同行程；另有右 Alt 鍵可能被系統回報為 `alt_gr` 而非 `alt_r`、`ToolTip` 視窗類型在 Windows 需改用 `Tool | FramelessWindowHint | WindowStaysOnTopHint`、中文字型需強制指定（如 `Microsoft JhengHei`）等已記錄地雷。改動 `main.py` 開頭的環境變數設定或 STT 掛載順序時務必重讀該章節。
 - **驗證方式**：`tests/` 內為可自動執行的 pytest 案例（`python -m pytest tests/ -v`）；`self_check.py`、`diagnose_mic.py`、`tests/manual/manual_qkey_check.py`、`tests/manual/manual_stt_warmup_check.py` 是需要真實硬體/可顯示視窗或真實子程序環境的手動腳本，不會被 pytest 收集。面向整體行為（熱鍵→錄音→辨識→貼字）的改動，建議另外在 Windows 實機執行 `python main.py` 手動驗證。
 - **設定變更**：新增 `config.py` 的 `DEFAULT_CONFIG` 欄位時，同時考慮是否要加進 `LOCAL_KEYS`（機器特定、不同步的設定）。
 - **語言與風格**：維護文件用繁體中文；程式碼/變數命名維持英文，既有中英混用註解沿用既有風格，不強制統一。
@@ -100,5 +100,4 @@ python tests/manual/manual_stt_warmup_check.py
 - [`NOTICE.md`](NOTICE.md)：來源、授權查證結果與第三方聲明。
 - [`SKILL.md`](SKILL.md)：AI agent 快速上手索引。
 - [`REVIEW.md`](REVIEW.md)：最新一次專案覆核（latest-only），風險表附「修復狀態」欄——修 bug 後必須回註（見「開發約定」）。
-- `windows_cuda_qt_crash_postmortem.md`：Windows PyQt6/CUDA 崩潰案例與修法（既有文件）。
 - `pyproject.toml`：套件 metadata 與 `pytest` 設定（本次新增，補足自動化測試骨架）。

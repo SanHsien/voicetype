@@ -10,7 +10,7 @@ Claude Code 在本專案工作時的指引。**專案定位、硬性邊界、架
 
 ## 高風險改動額外小心
 
-- 動到 `main.py` 開頭的環境變數設定（`KMP_DUPLICATE_LIB_OK`、`MKL_THREADING_LAYER`、`TQDM_DISABLE` 等）或 `stt/__init__.py` 的 `get_stt()` 平台分流時，先重讀 `windows_cuda_qt_crash_postmortem.md`——PyQt6 與 CUDA 同行程載入順序錯誤會導致無訊息崩潰（Exit Code 1），且不會有例外訊息可供除錯。
+- 動到 `main.py` 開頭的環境變數設定（`KMP_DUPLICATE_LIB_OK`、`MKL_THREADING_LAYER`、`TQDM_DISABLE` 等）或 `stt/__init__.py` 的 `get_stt()` 平台分流時，先重讀 `docs/DEVELOPMENT.md`「Windows 已知地雷」的 postmortem——PyQt6 與 CUDA 同行程載入順序錯誤會導致無訊息崩潰（Exit Code 1），且不會有例外訊息可供除錯。
 - 動到 `setup_win.bat` / `build_win.py` / `release_win.ps1` / `voicetype_installer.iss` 打包鏈前，先確認任務是否明確要求；否則保持原樣。
 
 ## 文件同步

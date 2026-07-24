@@ -72,9 +72,22 @@ python main.py
 
 ### Windows 已知地雷
 
-詳見根目錄 [`../windows_cuda_qt_crash_postmortem.md`](../windows_cuda_qt_crash_postmortem.md)（既有文件），重點：
+#### Postmortem：PyQt6 與 CUDA (faster-whisper) 初始化崩潰衝突
 
-- **PyQt6 與 CUDA 載入順序衝突**：若 PyQt6 的 DLL 先於 CUDA/`faster-whisper` 載入，Windows 上會無任何例外訊息直接 Exit Code 1。因此 `stt/__init__.py` 的 `get_stt()` 在 Windows 上強制回傳 `SubprocessWhisperSTT`（獨立子行程跑模型），`ui/app.py` 的 `run()` 也會在建立/顯示 UI 前先同步預載 STT。修改啟動流程或 STT 掛載順序時務必保留此設計。
+**症狀**：將本專案（聲成文 VoxProse，前身 VoiceType4TW）從 macOS 移植到 Windows 的過程中，當應用程式執行到載入 `faster-whisper`（底層依賴 `CTranslate2` 和 CUDA）時，Python 進程會**無任何例外或錯誤日誌**直接結束（Exit Code 1）。
+
+**根本原因**：經過大量隔離測試與追蹤後證實，在 Windows 上如果 Python 記憶體中**優先被載入了 PyQt6 相關的動態連結庫（DLL）**（即使完全尚未宣告或實例化 `QApplication`），再進行 CUDA 模組或 GPU 相關框架的初始化，就會引發毀滅性的底層視訊驅動／OpenGL 記憶體衝突。
+
+**解決方案**：強制作業系統的載入順序：
+1. **阻擋式防禦**：在 `main.py` 的絕對第一行（環境變數設定之後），**阻擋任何 PyQt6 UI 模組的 `import`**。
+2. **預先載入 STT**：判斷若為 Windows 系統，立即在主執行緒中阻塞式地呼叫 `get_stt()` 完成 CUDA 模型的掛載與預熱。
+3. **延後 UI 生成**：當模型已成功掛載進記憶體後，再匯入諸如 `ui.mic_indicator` 或 `ui.menu_bar` 等包含 PyQt6 依賴的模組。
+4. 在 macOS 系統上則維持原樣設計，依然可以使用非阻塞的 `QThread` 背景載入，因為 CoreML 與 Qt 在 macOS 上並無此類衝突。
+
+因此 `stt/__init__.py` 的 `get_stt()` 在 Windows 上強制回傳 `SubprocessWhisperSTT`（獨立子行程跑模型），`ui/app.py` 的 `run()` 也會在建立/顯示 UI 前先同步預載 STT。修改啟動流程或 STT 掛載順序時務必保留此設計、嚴格遵守此載入順序。
+
+#### 其他 Windows 特有地雷
+
 - **右 Alt 鍵**：不同鍵盤語系下系統可能將其回報為 `alt_gr` 而非 `alt_r`，`hotkey/listener.py`（純 ctypes 輪詢，無 `pynput`）的按鍵對應需手動處理。
 - **ToolTip 視窗置頂**：`Qt.WindowType.ToolTip` 在 Windows 未必置頂，浮動指示視窗改用 `Tool | FramelessWindowHint | WindowStaysOnTopHint` 組合。
 - **中文字型**：Windows 上 PyQt6 未必預設套用美觀黑體，需強制設定字型（如 `Microsoft JhengHei`）。

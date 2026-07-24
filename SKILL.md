@@ -57,7 +57,6 @@ python tests\manual\manual_qkey_check.py   # 手動：需可顯示視窗環境�
 - `pyproject.toml`：套件 metadata 與 pytest 設定（不取代 `requirements-win.txt`）。
 - `docs/DEVELOPMENT.md`：環境需求、Windows 啟動、測試、目錄結構。
 - `docs/DECISIONS.md`：決策紀錄。
-- `windows_cuda_qt_crash_postmortem.md`：Windows 上 PyQt6/CUDA 載入順序衝突的已知地雷與修法。
 - `self_check.py` / `diagnose_mic.py`：手動診斷腳本（後者已重寫為 Windows 版：列輸入裝置、測預設裝置實際音量）。
 
 ## 完成回報
@@ -67,4 +66,4 @@ python tests\manual\manual_qkey_check.py   # 手動：需可顯示視窗環境�
 - 修改了哪些檔案。
 - 是否改到 STT/LLM 引擎介面、`config.py` 的 `DEFAULT_CONFIG`/`LOCAL_KEYS`、熱鍵對應表，或 `main.py`/`stt/__init__.py` 的 Windows 載入順序。
 - 執行過哪些驗證：`python -m pytest tests/ -v` 的結果、有無在 Windows 實機啟動 `python main.py` 手動測試。
-- 是否碰到 `windows_cuda_qt_crash_postmortem.md` 記錄的已知地雷，或動到打包鏈（`setup_win.bat`/`build_win.py`/`release_win.ps1`/`voicetype_installer.iss`）。
+- 是否碰到 `docs/DEVELOPMENT.md`「Windows 已知地雷」記錄的已知地雷，或動到打包鏈（`setup_win.bat`/`build_win.py`/`release_win.ps1`/`voicetype_installer.iss`）。

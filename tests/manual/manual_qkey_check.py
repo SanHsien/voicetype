@@ -12,7 +12,7 @@ work — `hotkey/listener.py` on Windows uses `ctypes.windll.user32` polling
 rather than PyQt6 key events, but this script is still useful when debugging
 how Qt reports native virtual-key codes for a given physical key, e.g. when
 diagnosing the documented Right-Alt / alt_gr keyboard-locale mismatch in
-`windows_cuda_qt_crash_postmortem.md`.
+`docs/DEVELOPMENT.md` ("Windows 已知地雷" section).
 
 Run manually:
     python tests\\manual\\manual_qkey_check.py
