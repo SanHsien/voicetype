@@ -49,7 +49,7 @@ python tests\manual\manual_qkey_check.py   # 手動：需可顯示視窗環境�
 - `README.md` / `README.en.md`：使用者入口、功能介紹。
 - `AGENTS.md` / `CLAUDE.md`：AI 接手規則（本檔規則以 `AGENTS.md` 為準）。
 - `NOTICE.md`：fork 來源與授權查證結果。
-- `CHANGELOG.md` / `VERSIONS.md`：精簡對外變更摘要 / 逐版詳細全紀錄。
+- `CHANGELOG.md`：版本歷史單一真相源（精簡對外摘要＋逐版詳細全紀錄，含 pre-fork 上游繼承版本史）。
 - `main.py` → `ui/app.py`：進入點與 `VoiceTypeApp(QObject)` 協調者。
 - `config.py` / `paths.py`：設定載入儲存、資料目錄與路徑解析（`%APPDATA%\VoxProse\`）。
 - `stt/`、`llm/`、`ui/`、`hotkey/`、`actions/`、`soul/`、`vocab/`、`memory/`、`audio/`、`output/`、`stats/`、`utils/`、`tools/`：功能模組，職責見 `AGENTS.md` 架構速覽表。

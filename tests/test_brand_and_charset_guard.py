@@ -17,7 +17,7 @@
 2. `test_no_legacy_brand_name_in_ui`
    `ui/**` 原始碼不得出現舊產品自稱「嘴炮輸入法」／「嘴砲輸入法」——這是
    使用者實際會在視窗/選單看到的文案，必須跟品牌名同步；`NOTICE.md`／
-   `README*.md`／`LICENSE`／`VERSIONS.md` 等描述「歷史沿革／fork 出處」的
+   `README*.md`／`LICENSE`／`CHANGELOG.md` 等描述「歷史沿革／fork 出處」的
    文件不受此限（見 docs/DECISIONS.md 對「歷史沿革語意 vs. 品牌自稱」的
    判斷準則）。
 3. `test_no_legacy_author_personal_urls_in_ui`

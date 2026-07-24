@@ -15,6 +15,6 @@ Claude Code 在本專案工作時的指引。**專案定位、硬性邊界、架
 
 ## 文件同步
 
-新增／改動功能後，同步對應文件（各主題單一真相源）：使用者說明 [`README.md`](README.md) / [`README.en.md`](README.en.md)、最新覆核 [`REVIEW.md`](REVIEW.md)、精簡對外變更摘要 [`CHANGELOG.md`](CHANGELOG.md)、逐版詳細紀錄 [`VERSIONS.md`](VERSIONS.md)、決策理由 [`docs/DECISIONS.md`](docs/DECISIONS.md)、開發環境與測試 [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md)、授權查證 [`NOTICE.md`](NOTICE.md)、AI agent 快速索引 [`SKILL.md`](SKILL.md)。
+新增／改動功能後，同步對應文件（各主題單一真相源）：使用者說明 [`README.md`](README.md) / [`README.en.md`](README.en.md)、最新覆核 [`REVIEW.md`](REVIEW.md)、版本歷史（精簡摘要＋逐版詳細紀錄合一）[`CHANGELOG.md`](CHANGELOG.md)、決策理由 [`docs/DECISIONS.md`](docs/DECISIONS.md)、開發環境與測試 [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md)、授權查證 [`NOTICE.md`](NOTICE.md)、AI agent 快速索引 [`SKILL.md`](SKILL.md)。
 
 **修 bug 必回註 REVIEW.md**：規則本文見 [`AGENTS.md`](AGENTS.md)「開發約定」（適用所有 AI agent，非 Claude 專屬）。

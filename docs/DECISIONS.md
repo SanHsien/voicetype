@@ -175,8 +175,8 @@ Apple Foundation Models 整套、Mac 打包鏈、Mac 專屬 UI 改動、`COMMON_
 - **UI 品牌殘留（6 處）**：`ui/menu_bar.py`、`ui/settings/dashboard_page.py`、三處 `QMessageBox` 標題全數改為新品牌。
 - **`ui/app.py:98` 歷史版本註解**：含舊名雙關語，為讓守門測試可對 `ui/**` 做無例外全面掃描，直接拿掉字面量而非開特例。
 - **`vocab/manager.py:206` docstring 範例**：改用新品牌同音例子「聲成文」/「生成文」。
-- **決定（歷史/上游敘述維持不變）**：`NOTICE.md`／`README.md`／`LICENSE`／`CHANGELOG.md`／`VERSIONS.md` 等描述 fork 出處/歷史沿革的文字保留原名。
-- **決定（檔名更名）**：`啟動嘴炮輸入法.bat` → `啟動聲成文.bat`，並更新所有引用；`VERSIONS.md` 提及舊檔名的歷史稽核記錄維持不動。
+- **決定（歷史/上游敘述維持不變）**：`NOTICE.md`／`README.md`／`LICENSE`／`CHANGELOG.md`（原併存的 `VERSIONS.md` 已於 2026-07-24 併入本檔）等描述 fork 出處/歷史沿革的文字保留原名。
+- **決定（檔名更名）**：`啟動嘴炮輸入法.bat` → `啟動聲成文.bat`，並更新所有引用；當時 `VERSIONS.md` 提及舊檔名的歷史稽核記錄維持不動（該檔 2026-07-24 已併入 `CHANGELOG.md`「上游繼承版本史」，記錄原樣保留）。
 - **決定（`run_voicetype.bat`／`voicetype_installer.iss` 不更名）**：兩者皆非使用者可見品牌文案，橫跨打包鏈與已編譯工具，本次任務無法在 Windows 實機重新編譯驗證，貿然改名風險大於收益，維持現狀。
 
 ### 原作者個人網址移除

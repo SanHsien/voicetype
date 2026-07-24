@@ -2,7 +2,9 @@
 
 本檔案採用 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.0.0/) 格式，是對外快速掃描用的精簡摘要，記錄從本 fork（SanHsien）建立開發鷹架起的變更。
 
-完整的逐版對照使用者需求與驗證證據的詳細歷史，見 [`VERSIONS.md`](VERSIONS.md)。版本號遵循 [Semantic Versioning](https://semver.org/lang/zh-TW/)。
+本檔案自 2026-07-24 起單一記錄全部版本歷史（維護者同日授權，原逐版詳細紀錄
+`VERSIONS.md` 已併入本檔：fork 後版本併入對應版本區塊，pre-fork 上游繼承版本
+精簡為底部「上游繼承版本史」一節）。版本號遵循 [Semantic Versioning](https://semver.org/lang/zh-TW/)。
 
 > **關於歷史 commit hash**：v3.1.0 發版時已把 fork 開發歷史 squash 成單一 commit（`84d1b28`，見 `docs/UPSTREAM.md`）。本檔與 `docs/DECISIONS.md`、`REVIEW.md` 引用的更早 hash 屬 squash 前紀錄，已不存在於 git 歷史，僅作文件內識別碼保留。
 
@@ -14,6 +16,7 @@
 - **文件整理（第二批之一）**：`docs/mac-mainline-absorption-analysis.md` 的「建議不吸收清單」（含前瞻價值的 8-1／13-4／10-1／7-7 等項）精簡後併入 `docs/UPSTREAM.md` 新增小節「Mac 主線分析：評估後不吸收」；9 個檔案的程式碼註解/docstring 出處引用簡化為版本號（如「Mac 主線 v2.9.7」），移除檔名路徑與項目編號；分析檔刪除。
 - **文件整理（第二批之二）**：根目錄 `windows_cuda_qt_crash_postmortem.md`（PyQt6/CUDA 崩潰 postmortem）併入 `docs/DEVELOPMENT.md`「Windows 已知地雷」章節，`AGENTS.md`/`CLAUDE.md`/`SKILL.md`/`docs/REFERENCES.md`/`tests/manual/manual_qkey_check.py` 的引用同步改指向；原檔刪除。
 - **文件整理（第二批之三）**：`docs/RELEASE_VERIFICATION.md`（含前批併入的 QC checklist 附錄）併入 `docs/DEVELOPMENT.md`「Windows Release 實機驗證」章節，README/README.en 連結目標改指 `docs/DEVELOPMENT.md`（敘述文字不動），REVIEW/docs/DECISIONS 引用同步更新；原檔刪除。
+- **文件整理（第二批之四，最終批）**：`VERSIONS.md` 併入 `CHANGELOG.md`：fork 後版本（v3.1.0+）獨有的驗證證據補進對應版本區塊，pre-fork 上游繼承版本史（v2.7.24–win-go-mask v3.0.1）精簡為底部新增一節；`AGENTS.md`「CHANGELOG／VERSIONS 兩者並存」制度決定改為單一 CHANGELOG（維護者 2026-07-24 授權），`CLAUDE.md`/`SKILL.md`/`docs/DECISIONS.md`/`docs/DEVELOPMENT.md`/`tests/test_brand_and_charset_guard.py` 的引用同步更新；原檔刪除。
 
 ### Added
 
@@ -37,6 +40,7 @@
 - **主選單與設定視窗喚回**：品牌列「聲成文 VoxProse」現在會開啟設定；設定／About 從 tray callback 顯示時延後到 menu 關閉後再取回前景，About 改為非 modal，避免互相阻塞。
 - **About 視窗版面**：由固定 320×430 改為可縮放 680×720＋捲動內容，移除重複文案並把完整上游／fork／協作署名整理成卡片，不再裁字或互相覆蓋。
 - **VoxProse 品牌圖示**：換成透明背景的語音泡泡＋麥克風＋波形標誌，同步更新主 PNG、tray PNG 與 Windows 多尺寸 ICO。
+- **實機驗證**：新增 `tests/test_app_startup.py` 鎖定 tray/hotkey/event loop 呼叫順序（423 passed, 10 skipped）；Windows 內嵌 runtime 實測 log 出現 `QSystemTrayIcon shown successfully`。正式 Release 重新下載 Lite（238,977,563 bytes，SHA-256 `d7b7616b…`）與 NoModel（1,609,366,776 bytes，SHA-256 `953bf9a8…`），CRC／UTF-8 中文資源驗證通過。
 
 ## [3.4.2] - 2026-07-23
 
@@ -46,7 +50,7 @@
 
 ### Fixed
 
-- **STT 啟動 readiness 誤報**：Windows subprocess `warmup()` 過去只送出 IPC 就返回，UI 因而在模型尚未載入／warmup 前誤報 ready。現改為等待帶成功狀態的 `warmup_done`；worker error、程序死亡與 pipe 中斷均撤銷 ready。首次大型模型下載不設絕對 timeout，避免慢網路超時後永久卡住。
+- **STT 啟動 readiness 誤報**：Windows subprocess `warmup()` 過去只送出 IPC 就返回，UI 因而在模型尚未載入／warmup 前誤報 ready。現改為等待帶成功狀態的 `warmup_done`；worker error、程序死亡與 pipe 中斷均撤銷 ready。首次大型模型下載不設絕對 timeout，避免慢網路超時後永久卡住。新增 8 項回歸測試＋`tests/manual/manual_stt_warmup_check.py`（Windows 真 worker tiny CPU int8 驗證只在 ready＋warmup complete 後返回）。
 
 ## [3.4.1] - 2026-07-23
 
@@ -184,6 +188,34 @@
 - `stt/openrouter_stt.py`：修正與 `GeminiSTT` 同型的簽章與 WAV 重複編碼 bug。
 - STT 語言 hint 被翻譯目標語言污染：移植 `stt/language.py:get_transcription_language()`。
 - `ui/settings_window.py:_run_mic_test`：移除誤植的「非 macOS 拒絕」假擋板。
+
+### 驗證證據
+
+- `release_win.ps1` 通過 PowerShell 語法解析與 `-NoModel` 邏輯乾跑驗證；兩條新 workflow YAML 語法通過 `yaml.safe_load` 驗證；`check_dependency_freshness.py` 本機實跑成功（含 PyPI 查詢）。
+
+## 上游繼承版本史（pre-fork，沿用上游紀錄）
+
+以下為 SanHsien fork（v3.1.0）建立前，上游 `jfamily4tw/voicetype4tw-mac` 主線與其
+`win-go-mask-202607` 分支的版本沿革精簡摘要，完整逐項細節原見已移除的
+`VERSIONS.md`，此處僅留版本號與一句重點；日期、版本號、commit 碼均照原紀錄
+保留、不竄改。
+
+- **win-go-mask v3.0.1**（2026-07-08，`BUILD-3010-STABLE`）：真可攜版——`release_win.ps1` 全面改寫為自建完整可攜環境（內嵌 Python + 全部依賴 + medium 模型 + Starter EXE），UTF-8 with BOM 編碼修正。
+- **v3.0.0**（2026-07-07，`BUILD-3000-STABLE`）：正式定義為 Windows 專用版，移除 51 個 macOS 遺留檔案（打包鏈、`stt/mlx_whisper.py`、`ui/vocab_editor.py` 等），文件全面改寫為 Windows-only。
+- **v2.9.10**（2026-07-07）：設定頁各分頁細節修正（勾選框可辨識度、Windows 檔案總管開啟資料夾、記憶刪除/壓縮按鈕、署名改為 Claude Code）。
+- **v2.9.9**（2026-07-07）：Dashboard 版面重整，修正模型偵測路徑真 bug（原查錯 `~/.cache/huggingface/hub`）與內容截斷問題。
+- **v2.9.8**（2026-07-07）：新增全時自動觸發（`audio/auto_trigger.py` VAD 控制器）與多螢幕浮動視窗位置記憶。
+- **v2.9.7**（2026-07-07）：Windows 安裝流程強化與 Starter EXE（`tools/launcher.cs`），Python 偵測加固、CUDA 條件安裝、補齊漏列依賴。
+- **v2.8.2**（2026-03-04）：Mac 版旗艦功能對齊（處理耗時顯示、執行日誌系統）、API Key 預檢、雙層設定架構（`config_local.json`/`config_global.json`）。
+- **v2.8.1-dev**（2026-03-04）：跨平台雲端同步開發起點——`get_sync_base_dir()` 指標重定向、`LOCAL_KEYS` 白名單雛形。
+- **v2.8.0**（2026-03-03，Build B19）：瀏覽器輸入修復（移除注入攔截）、極簡托盤選單、浮動按鈕開關、解決 OpenMP 衝突與 Pystray 死鎖。
+- **v2.7.32 B15**（2026-03-03）：托盤選單圖示更新失敗修復。
+- **v2.7.32 B14**（2026-03-03）：日誌淨化，關閉 Debug 時不再輸出大量熱鍵日誌。
+- **v2.7.32 B8-B13**（2026-03-03）：`keystrike.log` 職責分離、動態情境前綴、Build ID 追蹤系統、`<Draft>` XML 記憶保護雙層架構，B13 修正 SettingsWindow 崩潰。
+- **v2.7.32 B7**（2026-03-03）：Prompt 結構優化，規則前置、資料後置，格式風格鎖定。
+- **v2.7.32 B2-B6**（2026-03-03）：Demo 模式變數修復、`[底層靈魂]` 標籤格式校準、Demo 控制項整合、情境遍歷測試模式。
+- **v2.7.32 beta**（2026-03-02）：Windows 移植起點——`KMP_DUPLICATE_LIB_OK=TRUE`、延遲導入、資料路徑導向 `%APPDATA%/VoiceType4TW`。
+- **v2.7.24-pc-stable**（2026-03-01）：Windows 初心版，建立 PC 穩定執行環境基準與 Inno Setup 安裝配置。
 
 [Unreleased]: https://github.com/SanHsien/voxprose/compare/v3.4.3...HEAD
 [3.4.3]: https://github.com/SanHsien/voxprose/compare/v3.4.2...v3.4.3

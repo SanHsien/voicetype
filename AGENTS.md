@@ -6,7 +6,7 @@
 
 `voxprose`（聲成文 VoxProse，上游/歷史脈絡稱嘴炮輸入法 / VoiceType4TW）是本機優先的語音輸入法：按住或切換全域快捷鍵錄音，透過本地 Whisper（`faster-whisper`，CPU/CUDA）或選用雲端引擎（Groq、Gemini、OpenRouter）辨識成文字，可選經 LLM 依「三層式靈魂系統」潤飾語氣，自動貼回目前有輸入焦點的視窗。
 
-本專案 fork 自 [`jfamily4tw/voicetype4tw-mac`](https://github.com/jfamily4tw/voicetype4tw-mac)（VoiceType4TW／嘴炮輸入法）的 `win-stable` 分支（v3.0.1，`win-go-mask` 主線），原作者為**吉米丘（Jimmy）**與 **CC58TW**；上游 Windows 專用版維護者為 **go-mask**（`win-go-mask-202607` 分支）。上游原生跨平台開發（macOS + Windows），**本 fork 只專注 Windows 10/11 版本的開發與改良**——目前整棵工作樹已是 Windows-only（macOS 專屬程式碼與打包鏈已在上游 `v3.0.0` 的「Windows 專用版」整理中移除，見 `VERSIONS.md`）。授權狀態見下方「硬性邊界」。GitHub repo 已由維護者更名為 `SanHsien/voxprose`（原 `SanHsien/voicetype`，本機工作目錄名稱維持不變，見 `docs/DECISIONS.md`）。
+本專案 fork 自 [`jfamily4tw/voicetype4tw-mac`](https://github.com/jfamily4tw/voicetype4tw-mac)（VoiceType4TW／嘴炮輸入法）的 `win-stable` 分支（v3.0.1，`win-go-mask` 主線），原作者為**吉米丘（Jimmy）**與 **CC58TW**；上游 Windows 專用版維護者為 **go-mask**（`win-go-mask-202607` 分支）。上游原生跨平台開發（macOS + Windows），**本 fork 只專注 Windows 10/11 版本的開發與改良**——目前整棵工作樹已是 Windows-only（macOS 專屬程式碼與打包鏈已在上游 `v3.0.0` 的「Windows 專用版」整理中移除，見 `CHANGELOG.md`「上游繼承版本史」）。授權狀態見下方「硬性邊界」。GitHub repo 已由維護者更名為 `SanHsien/voxprose`（原 `SanHsien/voicetype`，本機工作目錄名稱維持不變，見 `docs/DECISIONS.md`）。
 
 ## 硬性邊界
 
@@ -93,8 +93,7 @@ python tests/manual/manual_stt_warmup_check.py
 
 - [`README.md`](README.md) / [`README.en.md`](README.en.md)：使用者入口、功能介紹（中文為主）。
 - [`CLAUDE.md`](CLAUDE.md)：Claude Code 專屬薄補丁。
-- [`CHANGELOG.md`](CHANGELOG.md)：Keep a Changelog 格式的精簡對外摘要（本 fork 起點開始記）。
-- [`VERSIONS.md`](VERSIONS.md)：既有的「開發版本全紀錄」，逐版詳細需求對照與驗證證據，比標準 CHANGELOG 更完整，兩者並存、各司其職。
+- [`CHANGELOG.md`](CHANGELOG.md)：Keep a Changelog 格式的版本歷史單一真相源（維護者 2026-07-24 授權：原逐版詳細紀錄 `VERSIONS.md` 已併入本檔，不再兩檔並存）。
 - [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md)：環境需求、Windows 啟動、測試、目錄結構。
 - [`docs/DECISIONS.md`](docs/DECISIONS.md)：本 fork 的決策紀錄。
 - [`NOTICE.md`](NOTICE.md)：來源、授權查證結果與第三方聲明。

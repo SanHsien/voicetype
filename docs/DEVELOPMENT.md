@@ -121,7 +121,7 @@ python -m pytest tests/ -v
 
 ### 歷史測試腳本的處置（`git show 51094bf:<檔名>` 可撈回舊版 Mac 主線的原始內容）
 
-上游 Mac 主線在 Windows 專用化（`v3.0.0`，見 `VERSIONS.md`）時移除了根目錄全部 `test_*.py`。逐一檢查後：
+上游 Mac 主線在 Windows 專用化（`v3.0.0`，見 `CHANGELOG.md`「上游繼承版本史」）時移除了根目錄全部 `test_*.py`。逐一檢查後：
 
 | 舊檔案 | 處置 | 原因 |
 |--------|------|------|
@@ -448,7 +448,7 @@ if ([System.IO.Directory]::Exists($CleanupTarget)) {
 ├── self_check.py / diagnose_mic.py   # 既有手動診斷腳本
 ├── docs/                      # 本開發文件、決策紀錄
 ├── pyproject.toml            # 套件 metadata + pytest 設定（不取代 requirements-win.txt）
-├── CHANGELOG.md / VERSIONS.md # 精簡對外摘要 / 逐版詳細全紀錄
+├── CHANGELOG.md               # 版本歷史單一真相源（精簡摘要＋逐版詳細全紀錄）
 ├── .github/workflows/ci.yml  # GitHub Actions：windows-latest，py_compile + pytest 子集
 ├── .gitattributes             # eol 規則（.bat/.cmd/.ps1 強制 CRLF）
 ├── AGENTS.md / CLAUDE.md      # AI 協作規則
@@ -461,4 +461,4 @@ if ([System.IO.Directory]::Exists($CleanupTarget)) {
 
 ## 關於 macOS（本工作樹已無 macOS 程式碼）
 
-本 fork 的工作樹來自上游 `win-stable` 分支（v3.0.1），upstream 在其 `v3.0.0`「Windows 專用版」整理中已**移除全部 macOS 專屬程式碼與打包鏈**（`setup.py`/py2app、`pack_dmg.sh`、`build_all.sh`、`stt/mlx_whisper.py`、`entitlements.plist`、`.gitmodules`/`.aicore` submodule、`requirements.txt` 的 `pyobjc-*` 依賴等 51 個檔案，詳見 `VERSIONS.md` 的 `[v3.0.0]` 條目）。若在文件或程式碼中看到對上述檔案的引用，代表文件落後於實際工作樹，應視為待修正的殘留、而非「維持原樣即可」的既有事實——本次鷹架落地（見 `docs/DECISIONS.md`）已清理 `AGENTS.md`/`SKILL.md` 中的對應殘留。macOS 版開發請直接參考原作者 repo（[`jfamily4tw/voicetype4tw-mac`](https://github.com/jfamily4tw/voicetype4tw-mac)）。
+本 fork 的工作樹來自上游 `win-stable` 分支（v3.0.1），upstream 在其 `v3.0.0`「Windows 專用版」整理中已**移除全部 macOS 專屬程式碼與打包鏈**（`setup.py`/py2app、`pack_dmg.sh`、`build_all.sh`、`stt/mlx_whisper.py`、`entitlements.plist`、`.gitmodules`/`.aicore` submodule、`requirements.txt` 的 `pyobjc-*` 依賴等 51 個檔案，詳見 `CHANGELOG.md`「上游繼承版本史」的 `v3.0.0` 條目）。若在文件或程式碼中看到對上述檔案的引用，代表文件落後於實際工作樹，應視為待修正的殘留、而非「維持原樣即可」的既有事實——本次鷹架落地（見 `docs/DECISIONS.md`）已清理 `AGENTS.md`/`SKILL.md` 中的對應殘留。macOS 版開發請直接參考原作者 repo（[`jfamily4tw/voicetype4tw-mac`](https://github.com/jfamily4tw/voicetype4tw-mac)）。
