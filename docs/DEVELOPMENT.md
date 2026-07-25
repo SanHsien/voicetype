@@ -239,6 +239,31 @@ Remove-Item Env:\VOXPROSE_UI_CHECK_OUTPUT
 `.runtime\python.exe` 的 package root。輸出的 `about-window.png` 不得裁字／重疊，
 `settings-window.png` 應顯示完整設定頁。此腳本不代替下列真人語音操作。
 
+再用同一份解壓後 runtime 驗證真 `QSystemTrayIcon` live state，以及「聲成文
+VoxProse」／「關於」兩個可見選單 action 能分別喚回 Settings／About：
+
+```powershell
+$env:VOXPROSE_SOURCE_ROOT = $Extract
+try {
+  & "$Extract\.runtime\python.exe" `
+    ".\tests\manual\manual_tray_windows_check.py" --target settings
+  if ($LASTEXITCODE -ne 0) { throw "Tray Settings callback 驗證失敗" }
+
+  & "$Extract\.runtime\python.exe" `
+    ".\tests\manual\manual_tray_windows_check.py" --target about
+  if ($LASTEXITCODE -ne 0) { throw "Tray About callback 驗證失敗" }
+} finally {
+  Remove-Item Env:\VOXPROSE_SOURCE_ROOT -ErrorAction SilentlyContinue
+}
+```
+
+腳本會反查 `ui/app.py` 與 `ui/tray_manager.py` 確實來自指定 release root，
+並驗 `visible=True`、tooltip「聲成文」、icon 非空。PyQt 6.11 在 Windows
+上若把已掛到 `QSystemTrayIcon`、但尚未顯示的 closed context menu 直接
+`QAction.trigger()`，QA 程序可能 native fail-fast；那不是使用者點擊路徑。
+本腳本先用 `QMenu.popup()` 顯示選單再觸發 action，避免製造假失敗。它仍不
+取代真人目視通知區內實際圖示像素。
+
 1. 雙擊 `VoxProse.exe`。
 2. 在記事本或其他純文字輸入框放置游標。
 3. 依目前 PTT／Toggle 設定錄音，真人說「今天天氣真好」。
