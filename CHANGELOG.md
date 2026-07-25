@@ -10,6 +10,8 @@
 
 ## [Unreleased]
 
+## [3.4.4] - 2026-07-26
+
 ### Changed
 
 - **文件整理**：`docs/BRANDING.md` 併入 `docs/DECISIONS.md`、`quality_control_checklist.md` 併入（原）`docs/RELEASE_VERIFICATION.md` 附錄（現已隨該檔一併併入 `docs/DEVELOPMENT.md`，見下方文件整理第三批），兩份孤兒文件刪除，關鍵事實無遺失。
@@ -217,7 +219,8 @@
 - **v2.7.32 beta**（2026-03-02）：Windows 移植起點——`KMP_DUPLICATE_LIB_OK=TRUE`、延遲導入、資料路徑導向 `%APPDATA%/VoiceType4TW`。
 - **v2.7.24-pc-stable**（2026-03-01）：Windows 初心版，建立 PC 穩定執行環境基準與 Inno Setup 安裝配置。
 
-[Unreleased]: https://github.com/SanHsien/voxprose/compare/v3.4.3...HEAD
+[Unreleased]: https://github.com/SanHsien/voxprose/compare/v3.4.4...HEAD
+[3.4.4]: https://github.com/SanHsien/voxprose/compare/v3.4.3...v3.4.4
 [3.4.3]: https://github.com/SanHsien/voxprose/compare/v3.4.2...v3.4.3
 [3.4.2]: https://github.com/SanHsien/voxprose/compare/v3.4.1...v3.4.2
 [3.4.1]: https://github.com/SanHsien/voxprose/compare/v3.4.0...v3.4.1
