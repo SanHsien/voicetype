@@ -1,25 +1,57 @@
 # 聲成文 VoxProse
 
-[繁體中文](README.md) | English
+[![Release](https://img.shields.io/github/v/release/SanHsien/voxprose?sort=semver)](https://github.com/SanHsien/voxprose/releases/latest)
+[![CI](https://github.com/SanHsien/voxprose/actions/workflows/ci.yml/badge.svg)](https://github.com/SanHsien/voxprose/actions/workflows/ci.yml)
+[![Windows Release](https://github.com/SanHsien/voxprose/actions/workflows/release.yml/badge.svg)](https://github.com/SanHsien/voxprose/actions/workflows/release.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Python 3.10–3.14](https://img.shields.io/badge/Python-3.10--3.14-3776AB.svg?logo=python&logoColor=white)](pyproject.toml)
+[![Platform: Windows 10/11](https://img.shields.io/badge/Platform-Windows%2010%2F11-0078D4.svg?logo=windows11&logoColor=white)](https://www.microsoft.com/windows/)
+[![Local-first](https://img.shields.io/badge/Architecture-Local--first-2E7D32.svg)](docs/DECISIONS.md)
+[![Tests: pytest](https://img.shields.io/badge/Tests-pytest-0A9EDC.svg?logo=pytest&logoColor=white)](tests)
 
-Local-first AI Voice Typing for Traditional Chinese.
-Speak naturally. Write clearly.
+[繁體中文](README.md) | [English](README.en.md)
 
-> This repository (聲成文 VoxProse) is a fork of [`jfamily4tw/voicetype4tw-mac`](https://github.com/jfamily4tw/voicetype4tw-mac) (VoiceType4TW / 嘴炮輸入法, based on its `win-stable` branch, v3.0.1), **focused exclusively on developing and improving the Windows 10/11 version**.
->
-> Original authors: 吉米丘 (Jimmy) and CC58TW; upstream Windows-edition maintainer: go-mask. For the macOS version, official installers, tutorial videos, and anything else not covered here, the [upstream project](https://github.com/jfamily4tw/voicetype4tw-mac)'s latest documentation is authoritative.
+**聲成文 VoxProse** is a local-first AI voice typing tool built for Windows 10/11. Hold or toggle a global hotkey, speak naturally, transcribe with local Faster-Whisper (or an optional cloud engine), optionally polish the text with an LLM, and paste it back into the app that currently has input focus.
 
-A local-first speech-to-text input method where "just talk and it types itself": press a global hotkey to record → recognition runs locally via Faster-Whisper (or a cloud engine) → optional LLM polishing → the result is automatically pasted back into whatever currently has input focus.
+**Speak naturally. Write clearly.**
+
+> This project is a Windows-only fork of [`jfamily4tw/voicetype4tw-mac`](https://github.com/jfamily4tw/voicetype4tw-mac) (VoiceType4TW / 嘴炮輸入法), based on `win-stable` v3.0.1 (`win-go-mask` lineage). The original authors are Jimmy (吉米丘) and CC58TW; go-mask maintains the upstream Windows edition. See [NOTICE.md](NOTICE.md) for the full provenance and attribution.
+
+The [Traditional Chinese README](README.md) is the primary project introduction.
+
+## What it is
+
+- **Local-first by default**: local Faster-Whisper handles recognition, so recordings and personal data do not have to leave your PC.
+- **Voice typing in any app**: a global hotkey records your voice and pastes the result into LINE, browsers, Office, or any focused input field.
+- **Flexible recognition**: use CPU, NVIDIA CUDA, or bring your own API key for Groq, Gemini, or OpenRouter.
+- **Context-aware polishing**: the three-layer Soul System controls tone, scenario, and format, with optional automatic scenario switching by foreground app.
 
 ---
 
-## 🚀 Quick Install (3 steps, no programming required)
+## 🚀 Quick Start
 
-**1. Download the ZIP**: [👉 Click here to download](https://github.com/SanHsien/voxprose/archive/refs/heads/main.zip) (or click the green **Code** button above → **Download ZIP**)
+### Official release (recommended)
+
+1. Open [GitHub Releases](https://github.com/SanHsien/voxprose/releases/latest) and download the latest package:
+
+   | Package | Best for |
+   |---------|----------|
+   | `ShengChengWen-Windows-Lite-*.zip` | General PCs or CPU-only use; smaller package without CUDA or a model |
+   | `ShengChengWen-Windows-NoModel-*.zip` | NVIDIA GPU users; includes the CUDA runtime but not a model |
+
+2. Extract it to a simple path such as `D:\VoxProse`.
+3. Double-click `VoxProse.exe`; the selected speech model downloads on first launch.
+
+Each ZIP has a matching `.sha256` checksum. Release packages are published only after ZIP CRC, UTF-8 filename, and required-resource validation.
+
+### Automatic setup from source
+
+**1. Download the source ZIP**: [download the `main` branch](https://github.com/SanHsien/voxprose/archive/refs/heads/main.zip) (or click the green **Code** button above → **Download ZIP**)
 
 **2. Extract** it to a simple path, e.g. `D:\VoxProse` (avoid `C:\Program Files` — insufficient write permissions will be blocked by the environment check)
 
 **3. Double-click `setup_win.bat`** — everything from here on is automatic:
+
 - No Python installed? It automatically downloads a portable Python (no admin rights needed, doesn't pollute your system)
 - Has an NVIDIA GPU? CUDA acceleration is enabled automatically; otherwise it falls back to CPU mode (saving an 800MB download)
 - Automatically downloads the speech recognition model (~1.5GB), compiles the launcher, and creates a desktop shortcut
@@ -154,9 +186,25 @@ Packaging a portable ZIP (for developers):
 .\release_win.ps1            # Full: includes CUDA + medium model (~4GB)
 .\release_win.ps1 -Lite      # Lite: no CUDA, no model, downloaded online on first launch (~300MB)
 .\release_win.ps1 -NoModel   # NoModel: includes CUDA, no model, downloaded online on first launch (~1-1.5GB)
+python tools\verify_release_zip.py dist\ShengChengWen-Windows-Lite-vX.Y.Z.zip
 ```
 
 Pushing a `v*` tag triggers `.github/workflows/release.yml`, which builds both the Lite and NoModel versions and publishes them only after the ZIP CRC, UTF-8 filenames, and required resources pass validation (manually triggering via `workflow_dispatch` only produces build artifacts). See the "Windows Release 實機驗證" section in [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md) for the full Windows verification procedure; `.github/workflows/dependency-freshness.yml` checks monthly whether `requirements-win.txt`/`requirements-cuda-win.txt` are behind the latest versions on PyPI.
+
+## Project Structure
+
+```text
+main.py                 Windows application entry point
+ui/                     Main app, settings, tray, and floating UI
+audio/                  Recording and RMS/Silero VAD
+stt/                    Local and cloud speech recognition engines
+llm/                    Text-polishing provider integrations
+output/                 Pastes results into the focused input field
+soul/                   Scenario templates and output formats
+vocab/ memory/ stats/   Vocabulary, long-term memory, and usage statistics
+tests/                  pytest suite and manual hardware validators
+docs/                   Development, decisions, upstream, and references
+```
 
 ## Settings
 
@@ -185,11 +233,22 @@ The config file lives at `%APPDATA%\VoxProse\` (`config_local.json` for machine-
 - 16GB+ RAM recommended
 - ~5GB of disk space (including the recognition model)
 
-## This Fork's Documentation
+## Documentation
 
-- [AGENTS.md](AGENTS.md) (AI collaboration rules), [SKILL.md](SKILL.md) (quick agent onboarding)
-- [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) (development guide), [docs/DECISIONS.md](docs/DECISIONS.md) (decision log)
-- [REVIEW.md](REVIEW.md) (latest project review)
-- [NOTICE.md](NOTICE.md), [LICENSE](LICENSE) (license: MIT, see NOTICE.md for details)
+- [README.md](README.md): primary Traditional Chinese README
+- [CHANGELOG.md](CHANGELOG.md): version history
+- [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md): development, testing, packaging, and Windows release verification
+- [docs/DECISIONS.md](docs/DECISIONS.md): design and maintenance decisions for this fork
+- [docs/UPSTREAM.md](docs/UPSTREAM.md): upstream sync status and reviewed-but-skipped changes
+- [REVIEW.md](REVIEW.md): latest project review
+- [AGENTS.md](AGENTS.md) / [SKILL.md](SKILL.md): AI-agent collaboration rules and quick index
 
-This document covers only what's necessary for the Windows development edition; for anything not covered here (a complete feature overview, installation troubleshooting, the macOS version, etc.), the [upstream project](https://github.com/jfamily4tw/voicetype4tw-mac)'s latest documentation is authoritative. This fork is independently maintained and does not speak for the upstream project.
+## Project Source and Credits
+
+This project is forked from [`jfamily4tw/voicetype4tw-mac`](https://github.com/jfamily4tw/voicetype4tw-mac). The original authors are **Jimmy (吉米丘)** and **CC58TW**; **go-mask** maintains the upstream Windows edition. This Windows-only fork is maintained by **SanHsien**. See [NOTICE.md](NOTICE.md) for provenance, version lineage, and third-party notices.
+
+For the macOS version and upstream tutorials, refer to the [upstream project's](https://github.com/jfamily4tw/voicetype4tw-mac) latest documentation. This fork is independently maintained and does not speak for the upstream project.
+
+## License
+
+This project is available under the [MIT License](LICENSE). Please retain the license and the attribution listed in [NOTICE.md](NOTICE.md) when using, modifying, or redistributing it.

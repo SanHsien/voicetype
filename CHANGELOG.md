@@ -10,6 +10,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **README 公開入口**：中英文 README 對齊專案首頁結構，新增 Release／CI／Windows Release／MIT／Python／Windows／local-first／pytest 徽章、雙向語言連結、正式版下載指引、專案結構、文件索引、來源致謝與授權分節。
+
 ## [3.4.4] - 2026-07-26
 
 ### Changed

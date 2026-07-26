@@ -1,25 +1,55 @@
 # 聲成文 VoxProse
 
-Local-first AI voice typing for Windows.
-Speak naturally and turn your voice into polished text.
+[![Release](https://img.shields.io/github/v/release/SanHsien/voxprose?sort=semver)](https://github.com/SanHsien/voxprose/releases/latest)
+[![CI](https://github.com/SanHsien/voxprose/actions/workflows/ci.yml/badge.svg)](https://github.com/SanHsien/voxprose/actions/workflows/ci.yml)
+[![Windows Release](https://github.com/SanHsien/voxprose/actions/workflows/release.yml/badge.svg)](https://github.com/SanHsien/voxprose/actions/workflows/release.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Python 3.10–3.14](https://img.shields.io/badge/Python-3.10--3.14-3776AB.svg?logo=python&logoColor=white)](pyproject.toml)
+[![Platform: Windows 10/11](https://img.shields.io/badge/Platform-Windows%2010%2F11-0078D4.svg?logo=windows11&logoColor=white)](https://www.microsoft.com/windows/)
+[![Local-first](https://img.shields.io/badge/Architecture-Local--first-2E7D32.svg)](docs/DECISIONS.md)
+[![Tests: pytest](https://img.shields.io/badge/Tests-pytest-0A9EDC.svg?logo=pytest&logoColor=white)](tests)
 
-> 本 repo（聲成文 VoxProse）是 [`jfamily4tw/voicetype4tw-mac`](https://github.com/jfamily4tw/voicetype4tw-mac)（VoiceType4TW／嘴炮輸入法）的 fork（基於其 `win-stable` 分支 v3.0.1，`win-go-mask` 主線），**只專注於 Windows 10/11 版本的開發與改良**。
->
-> 原作者：吉米丘（Jimmy）、CC58TW；上游 Windows 專用版維護：go-mask。macOS 版本、官方安裝包與教學影片等內容，以[原專案](https://github.com/jfamily4tw/voicetype4tw-mac)的最新說明為準。
+[繁體中文](README.md) | [English](README.en.md)
 
-「出一張嘴就能打字」的本地優先語音輸入法：全域快捷鍵錄音 → 本地 Faster-Whisper（或雲端引擎）辨識 → 可選 LLM 潤飾 → 自動貼回目前輸入焦點。
+**聲成文 VoxProse** 是為 Windows 10/11 打造的本地優先 AI 語音輸入工具：按住或切換全域快捷鍵說話，經本地 Faster-Whisper（或選用雲端引擎）辨識，可再交給 LLM 潤飾，最後自動貼回目前有輸入焦點的程式。
 
-自然開口，清楚成文。
+**自然開口，清楚成文。**
+
+> 本專案 fork 自 [`jfamily4tw/voicetype4tw-mac`](https://github.com/jfamily4tw/voicetype4tw-mac)（VoiceType4TW／嘴炮輸入法）的 `win-stable` v3.0.1（`win-go-mask` 主線），只專注 Windows 版本。原作者為吉米丘（Jimmy）與 CC58TW；上游 Windows 專用版維護者為 go-mask。完整來源與署名見 [NOTICE.md](NOTICE.md)。
+
+## 這是什麼
+
+- **本地優先**：預設以本機 Faster-Whisper 辨識；錄音與個人資料不必交給第三方服務。
+- **在任何程式直接說話打字**：全域快捷鍵錄音，結果貼回目前的 LINE、瀏覽器、Office 或其他輸入框。
+- **辨識方式可自由選擇**：支援 CPU／NVIDIA CUDA，也可自備 API key 使用 Groq、Gemini 或 OpenRouter。
+- **情境感知的文字潤飾**：三層式靈魂系統可調整口吻、情境與格式，並能依前景程式自動切換情境。
 
 ---
 
-## 🚀 快速安裝（三步驟，不需要懂程式）
+## 🚀 快速開始
 
-**1. 下載 ZIP**：[👉 點我直接下載](https://github.com/SanHsien/voxprose/archive/refs/heads/main.zip)（或按上方綠色 **Code** 按鈕 → **Download ZIP**）
+### 正式版（推薦）
 
-**2. 解壓縮**到簡單的路徑，例如 `D:\VoxProse`（請避開 `C:\Program Files`，寫入權限不足會被環境檢查擋下）
+1. 前往 [GitHub Releases](https://github.com/SanHsien/voxprose/releases/latest) 下載最新版：
 
-**3. 雙擊 `setup_win.bat`**，接下來全自動：
+   | 版本 | 適合對象 |
+   |------|----------|
+   | `ShengChengWen-Windows-Lite-*.zip` | 一般電腦或只用 CPU；體積較小，不含 CUDA 與模型 |
+   | `ShengChengWen-Windows-NoModel-*.zip` | NVIDIA GPU 使用者；內含 CUDA 執行環境，不含模型 |
+
+2. 解壓縮到簡單路徑，例如 `D:\VoxProse`。
+3. 雙擊 `VoxProse.exe`；首次啟動會下載所選語音模型。
+
+每個 ZIP 旁均附 `.sha256` 校驗檔；正式包會先通過 ZIP CRC、UTF-8 中文檔名與必要資源檢查再發佈。
+
+### 從原始碼自動安裝
+
+**1. 下載原始碼 ZIP**：[下載 `main` 分支](https://github.com/SanHsien/voxprose/archive/refs/heads/main.zip)（或按上方綠色 **Code** 按鈕 → **Download ZIP**）
+
+**2. 解壓縮**到簡單路徑，例如 `D:\VoxProse`（請避開 `C:\Program Files`，寫入權限不足會被環境檢查擋下）
+
+**3. 雙擊 `setup_win.bat`**，接下來會自動：
+
 - 沒裝 Python？自動下載可攜式 Python（免管理員權限、不污染系統）
 - 有 NVIDIA 顯示卡自動啟用 CUDA 加速，沒有就用 CPU 模式（省 800MB 下載）
 - 自動下載語音辨識模型（約 1.5GB）、編譯啟動器、建立桌面捷徑
@@ -159,6 +189,21 @@ python tools\verify_release_zip.py dist\ShengChengWen-Windows-Lite-vX.Y.Z.zip
 
 推送 `v*` tag 會觸發 `.github/workflows/release.yml` 自動建置 Lite + NoModel 兩版，通過 ZIP CRC／UTF-8 中文檔名／必要資源 gate 後才發佈到 GitHub Releases（`workflow_dispatch` 手動觸發僅產生 artifact，不發佈）。完整實機驗證流程見 [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md) 的「Windows Release 實機驗證」章節；`.github/workflows/dependency-freshness.yml` 每月檢查 `requirements-win.txt`/`requirements-cuda-win.txt` 是否落後 PyPI 最新版。
 
+## 專案結構
+
+```text
+main.py                 Windows 程式進入點
+ui/                     主程式、設定、系統匣與浮動介面
+audio/                  錄音、RMS／Silero VAD
+stt/                    本地與雲端語音辨識引擎
+llm/                    文字潤飾供應商整合
+output/                 將結果貼回前景輸入框
+soul/                   情境模板與輸出格式
+vocab/ memory/ stats/   詞彙、長期記憶與使用統計
+tests/                  pytest 自動測試與 manual 實機驗證器
+docs/                   開發、決策、上游同步與參考文件
+```
+
 ## 設定
 
 設定檔位於 `%APPDATA%\VoxProse\`（`config_local.json` 本機、`config_global.json` 參與雲端同步），多數選項可在設定視窗調整：
@@ -186,11 +231,22 @@ python tools\verify_release_zip.py dist\ShengChengWen-Windows-Lite-vX.Y.Z.zip
 - 記憶體建議 16GB 以上
 - 磁碟空間約 5GB（含辨識模型）
 
-## 本 fork 的文件
+## 文件
 
-- [AGENTS.md](AGENTS.md)（AI 協作規則）、[SKILL.md](SKILL.md)（agent 快速上手）
-- [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)（開發指南）、[docs/DECISIONS.md](docs/DECISIONS.md)（決策記錄）
-- [REVIEW.md](REVIEW.md)（最新一次專案覆核）
-- [NOTICE.md](NOTICE.md)、[LICENSE](LICENSE)（授權：MIT，詳見 NOTICE.md）
+- [README.en.md](README.en.md)：English README
+- [CHANGELOG.md](CHANGELOG.md)：版本歷史
+- [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)：開發、測試、打包與 Windows Release 實機驗證
+- [docs/DECISIONS.md](docs/DECISIONS.md)：本 fork 的設計與維護決策
+- [docs/UPSTREAM.md](docs/UPSTREAM.md)：上游同步狀態與未採用項目
+- [REVIEW.md](REVIEW.md)：最新一次專案覆核
+- [AGENTS.md](AGENTS.md)／[SKILL.md](SKILL.md)：AI agent 協作規則與快速索引
 
-本文件僅涵蓋 Windows 開發版的必要資訊；本文未盡事項（完整功能介紹、安裝疑難排解、macOS 版等），以[原專案](https://github.com/jfamily4tw/voicetype4tw-mac)的最新說明為準。本 fork 為獨立維護，不代表原專案立場。
+## 專案來源與致謝
+
+本專案 fork 自 [`jfamily4tw/voicetype4tw-mac`](https://github.com/jfamily4tw/voicetype4tw-mac)，原作者為**吉米丘（Jimmy）**與 **CC58TW**；上游 Windows 專用版維護者為 **go-mask**。本 Windows-only fork 由 **SanHsien** 維護。來源、版本脈絡與第三方聲明詳見 [NOTICE.md](NOTICE.md)。
+
+macOS 版本與上游教學請以[原專案](https://github.com/jfamily4tw/voicetype4tw-mac)的最新說明為準。本 fork 為獨立維護，不代表原專案立場。
+
+## 授權
+
+本專案採 [MIT License](LICENSE)。使用、修改或散布時，請保留授權與 [NOTICE.md](NOTICE.md) 所列署名。
