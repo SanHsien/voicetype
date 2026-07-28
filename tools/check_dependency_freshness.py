@@ -42,6 +42,8 @@ def parse_version(text: str) -> tuple:
     for piece in (text or "").strip().lstrip("vV").split("."):
         match = re.match(r"(\d+)", piece)
         parts.append(int(match.group(1)) if match else 0)
+    while len(parts) > 1 and parts[-1] == 0:
+        parts.pop()
     return tuple(parts) if parts else (0,)
 
 

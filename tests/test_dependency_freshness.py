@@ -56,6 +56,11 @@ def test_marks_new_major_as_blocked_by_upper_bound(monkeypatch):
     assert row["blocked_by_upper"] is True
 
 
+def test_versions_with_only_trailing_zero_difference_are_equal():
+    assert freshness.is_newer_version("1.14.0", "1.14") is False
+    assert freshness.is_newer_version("1.14.1", "1.14") is True
+
+
 def test_marks_lookup_failure_for_attention(monkeypatch):
     packages = freshness.parse_requirements(
         [Path(__file__).resolve().parent.parent / "requirements-win.txt"]
