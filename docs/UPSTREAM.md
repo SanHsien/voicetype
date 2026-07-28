@@ -25,9 +25,9 @@
     },
     "main": {
       "last_merged": null,
-      "last_reviewed": "805b007",
+      "last_reviewed": "4269178",
       "license_source": "46346d3",
-      "note": "Mac 線，程式碼不追蹤（僅分析吸收），license_source 記錄 LICENSE 取自 main 的哪個 commit。last_reviewed 推進至 805b007（v2.9.18，2026-07-21，mac apple local correction）：Apple Foundation Models 整套與 Mac 打包/UI 專屬改動評估為 macOS 專屬，已列 Skipped 表；其中 3 項平台無關修正（vocab 模糊比對縮寫守衛、OpenCC 簡轉繁後處理概念、學習詞排序穩定化）已另行吸收，見 CHANGELOG v3.3.0。10b2fc8／0ed0c47 為更早的 macOS 專屬 commit，已列 Skipped 表；46346d3 的 LICENSE 已採用"
+      "note": "Mac 線，程式碼不追蹤（僅分析吸收），license_source 記錄 LICENSE 取自 main 的哪個 commit。last_reviewed 推進至 4269178（v2.9.19，2026-07-23，Apple Local prompt leak hotfix）：只修改 Apple Foundation Models helper、llm/apple_local.py 與 macOS DMG/版本資料，本 Windows-only fork 無 Apple Local 引擎或 Swift helper，已列 Skipped 表。前一筆 805b007 的 3 項平台無關修正已另行吸收，見 CHANGELOG v3.3.0；10b2fc8／0ed0c47 為更早的 macOS 專屬 commit，均已列 Skipped 表；46346d3 的 LICENSE 已採用"
     }
   }
 }
@@ -43,6 +43,7 @@
 | `main`（Mac 線） | [`0ed0c47`](https://github.com/jfamily4tw/voicetype4tw-mac/commit/0ed0c47) | fix: clean up runtime on native macOS quit | 2026-07-20 | macOS 專屬（AppKit 應用程式退出清理），本 fork 無 AppKit 相依，不適用。 |
 | `main`（Mac 線） | [`10b2fc8`](https://github.com/jfamily4tw/voicetype4tw-mac/commit/10b2fc8) | fix: keep hotkey watchdog recovering | 2026-07-20 | macOS 專屬（CGEventTap watchdog），本 fork 熱鍵走 Win32 `GetAsyncKeyState` 輪詢架構，不適用。 |
 | `main`（Mac 線） | [`805b007`](https://github.com/jfamily4tw/voicetype4tw-mac/commit/805b007) | release: v2.9.18 mac apple local correction | 2026-07-22 | Apple Foundation Models 整套、Mac 打包鏈與 Mac 專屬 UI 改動是 macOS 26 專屬，Windows 無對應物；`COMMON_ALIAS_CORRECTIONS` 是原作者個人別名，無普遍價值。其中 3 項平台無關修正已另行吸收，見 CHANGELOG v3.3.0：vocab 短 ASCII 縮寫守衛、OpenCC 簡轉繁後處理概念（獨立實作為 `utils/zh_convert.py`）、學習詞排序穩定化。 |
+| `main`（Mac 線） | [`4269178`](https://github.com/jfamily4tw/voicetype4tw-mac/commit/42691782e517d68f0acbf1f26a4db2f544e78086) | fix: prevent apple local prompt leakage | 2026-07-28 | 修正 Apple Foundation Models 偶發回吐提示詞：改 Swift `LanguageModelSession` prompt、清洗 `llm/apple_local.py` 輸出，並更新 macOS DMG／版本資料。VoxProse 沒有 Apple Local 引擎、Swift helper、DMG 打包鏈或 `llm/apple_local.py`，現有雲端／Ollama 引擎走不同實作，無可移植的同型修補。 |
 
 ## Mac 主線分析：評估後不吸收
 
@@ -80,7 +81,7 @@ git remote add upstream https://github.com/jfamily4tw/voicetype4tw-mac.git
 |---|---|---|---|
 | `win-stable` | `b694e40`（release(win): mark win-go-mask v3.0.1，2026-07-08） | 已完整併入 | v3.0.1 基底，本 fork 早期歷史直接構築於此分支之上。 |
 | `win-go-mask-202607` | `e5ddc02`（Assets: regenerate README screenshots from the live V3.0.1 UI，2026-07-20） | 已併入（merge commit `12f51d6`） | 內容：三步驟安裝流程、README 改寫、新截圖。**例外**：其 `paths.py`（`VERSION_NAME`/`BUILD_ID`）與 `voicetype_installer.iss`（`MyAppVersion`/`OutputBaseFilename`）版本字串未採用——installer 那筆是 `MyAppVersion "2.8.27_V90"`，明顯是上游誤植降版（早於本 fork 當時的 3.0.1），本樹版本號自行管理，不隨上游該筆走。 |
-| `main`（Mac 線） | 程式碼不追蹤；fork 分岔點 `51094bf`（Revise README contributors and version info，v2.9.16，2026-07-08） | 不併入程式碼，僅分析吸收 | `51094bf` 是 Mac 主線與本 fork 的共同祖先，作為「Mac 功能吸收分析」的基準點，詳細逐版逐項分析已併入本檔上方「Mac 主線分析：評估後不吸收」小節（原獨立檔 `docs/mac-mainline-absorption-analysis.md` 已於文件整理批次移除）。其後的 Mac 專屬修復 `0ed0c47`（fix: clean up runtime on native macOS quit）與 `10b2fc8`（fix: keep hotkey watchdog recovering）評估為 macOS 平台專屬，不適用於 Windows 樹。LICENSE 另取自 `main` 分支 tip `46346d3`（docs: add MIT license and contribution guide，2026-07-20）——雙軌授權因此收斂為全 MIT。 |
+| `main`（Mac 線） | 程式碼不追蹤；fork 分岔點 `51094bf`（Revise README contributors and version info，v2.9.16，2026-07-08） | 不併入程式碼，僅分析吸收 | `51094bf` 是 Mac 主線與本 fork 的共同祖先，作為「Mac 功能吸收分析」的基準點，詳細逐版逐項分析已併入本檔上方「Mac 主線分析：評估後不吸收」小節。最新已審視至 `4269178`（Apple Local prompt leak hotfix，2026-07-23）；該筆與較早的 `0ed0c47`、`10b2fc8` 均屬 macOS 專屬，未採用理由見 Skipped 表。LICENSE 另取自 `main` 分支 tip `46346d3`（docs: add MIT license and contribution guide，2026-07-20）——雙軌授權因此收斂為全 MIT。 |
 
 ## Squash 後的雙親關係
 

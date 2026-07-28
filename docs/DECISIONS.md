@@ -11,6 +11,10 @@
 - **新增維護面**：Dependabot 每週檢查 pip 與 GitHub Actions；freshness workflow 加入 main 依賴檔 push 觸發、open PR 彙整、concurrency、stale SHA guard，以及 issue 建立／重開／整頁更新／自動關閉；CodeQL 在 push、PR、手動與每週排程跑 Python `security-extended`。GitHub repo 同步啟用 Issues、vulnerability alerts、Dependabot security updates，並建立 `dependencies`／`python`／`github-actions` labels。
 - **不採用自動合併**：`yt_fetch`／`gpt-ai-assistant` 的低風險工具更新可經 guarded merge；VoxProse 的直接依賴幾乎全是 Windows 執行期、GUI、音訊、STT、ONNX/CUDA 或雲端 SDK，GitHub Actions 又含不會在一般 PR 真正執行的 Release／上游提醒路徑。故本 repo 所有 Dependabot PR 一律人工審查；完整 CI 只是最低 gate，涉及相關行為時仍須真機／Release 驗證。
 
+## 2026-07-28 — 上游 main 4269178 Apple Local prompt leak 修復不採用
+
+上游 `main` 的 `4269178`（v2.9.19 hotfix）修正 Apple Foundation Models 偶發回吐 prompt：調整 Swift `LanguageModelSession` 提示、在 `llm/apple_local.py` 抽取校正文字並對殘留標籤／code fence fail back，另更新 DMG 與版本資料。逐檔確認本 fork 沒有 Apple Local 引擎、Swift helper、DMG 打包鏈或 `llm/apple_local.py`；VoxProse 的雲端／Ollama LLM provider 走獨立實作，沒有這次觀察到的 Foundation Models 特定漏出路徑。因此不移植程式碼，只把 `docs/UPSTREAM.md` 的 `main.last_reviewed` 推進至 `4269178` 並寫入 Skipped 表。
+
 ## 2026-07-24 — QA checkpoint：非阻塞前景偵測與 Node 24 workflow
 
 - GitHub workflow action 全面升至 Node 24 世代，避免 runner 強制相容模式掩蓋未來失效風險；版本來源逐一以各 action 官方 release／`action.yml` 驗證。

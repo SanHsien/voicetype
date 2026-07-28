@@ -18,6 +18,7 @@
 
 - **README 公開入口**：中英文 README 對齊專案首頁結構，新增 Release／CI／Windows Release／MIT／Python／Windows／local-first／pytest 徽章、雙向語言連結、正式版下載指引、專案結構、文件索引、來源致謝與授權分節。
 - **依賴新鮮度追蹤**：checker 改為只比較 repo 宣告與 PyPI，不再受執行機器已安裝套件影響；workflow 會彙整 open Dependabot PR、避免舊 SHA 覆寫、重開／更新／自動關閉同一個維護 issue。
+- **上游 main 審視**：`4269178`（Apple Local prompt leak hotfix）只涉及 Apple Foundation Models、Swift helper 與 macOS 打包／版本資料，本 Windows-only fork 無對應模組，記入 `docs/UPSTREAM.md` Skipped 並推進 `last_reviewed`，不移植程式碼。
 
 ### Fixed
 
