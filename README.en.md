@@ -2,6 +2,7 @@
 
 [![Release](https://img.shields.io/github/v/release/SanHsien/voxprose?sort=semver)](https://github.com/SanHsien/voxprose/releases/latest)
 [![CI](https://github.com/SanHsien/voxprose/actions/workflows/ci.yml/badge.svg)](https://github.com/SanHsien/voxprose/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/SanHsien/voxprose/actions/workflows/codeql.yml/badge.svg)](https://github.com/SanHsien/voxprose/actions/workflows/codeql.yml)
 [![Windows Release](https://github.com/SanHsien/voxprose/actions/workflows/release.yml/badge.svg)](https://github.com/SanHsien/voxprose/actions/workflows/release.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.10–3.14](https://img.shields.io/badge/Python-3.10--3.14-3776AB.svg?logo=python&logoColor=white)](pyproject.toml)
@@ -189,7 +190,7 @@ Packaging a portable ZIP (for developers):
 python tools\verify_release_zip.py dist\ShengChengWen-Windows-Lite-vX.Y.Z.zip
 ```
 
-Pushing a `v*` tag triggers `.github/workflows/release.yml`, which builds both the Lite and NoModel versions and publishes them only after the ZIP CRC, UTF-8 filenames, and required resources pass validation (manually triggering via `workflow_dispatch` only produces build artifacts). See the "Windows Release 實機驗證" section in [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md) for the full Windows verification procedure; `.github/workflows/dependency-freshness.yml` checks monthly whether `requirements-win.txt`/`requirements-cuda-win.txt` are behind the latest versions on PyPI.
+Pushing a `v*` tag triggers `.github/workflows/release.yml`, which builds both the Lite and NoModel versions and publishes them only after the ZIP CRC, UTF-8 filenames, and required resources pass validation (manually triggering via `workflow_dispatch` only produces build artifacts). See the "Windows Release 實機驗證" section in [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md) for the full Windows verification procedure. Dependabot checks Python and GitHub Actions dependencies weekly, `dependency-freshness.yml` compares direct dependencies with PyPI and tracks open PRs monthly, and CodeQL runs an extended weekly security scan. Windows and CUDA dependency PRs always require human review and are never auto-merged.
 
 ## Project Structure
 

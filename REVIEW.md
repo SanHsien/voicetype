@@ -26,7 +26,7 @@ v3.4.1 已修正 ZIP 中文檔名，v3.4.2 補上 STT readiness 契約與 fail-c
 | 2 | STT 引擎選單「Gemini」無對應分派分支 | 中高 | ✅ 已修（`71f0cbe`） | `stt/__init__.py` 已有分支，測試通過 |
 | 3 | 無 Whisper 幻覺過濾機制 | 中高 | ✅ 已修（`7bf8592`） | `stt/hallucination_filter.py` 接線；實機驗證「嗯」被過濾、完整句不被過濾 |
 | 4 | API Key 明碼且會同步到雲端資料夾 | 高 | ✅ 已修（`cc1e2d1`） | `LOCAL_KEYS` 已收錄 `*_api_key` |
-| 5 | 無 `test_*.py`，核心 pipeline 零測試覆蓋 | 中高 | ✅ 已修（`f8633de` 起） | `tests/` 現有 46 個 `test_*.py`；`181e060` 的 GitHub Python 3.10–3.14 五版本 CI 每版 467 passed（run `30175342495`），正式 v3.4.4 runtime 對同一最新 source 亦為 467 passed（2026-07-26） |
+| 5 | 無 `test_*.py`，核心 pipeline 零測試覆蓋 | 中高 | ✅ 已修（`f8633de` 起） | `tests/` 現有 48 個 `test_*.py`；`181e060` 的 GitHub Python 3.10–3.14 五版本 CI 每版 467 passed（run `30175342495`），正式 v3.4.4 runtime 對同一最新 source 亦為 467 passed（2026-07-26） |
 | 6 | `paths.py` 雲端同步路徑常數是死碼 | 中 | ✅ 已修 | 四個常數已移除 |
 | 7 | `ui/settings_window.py` god file | 中 | ✅ 已修（`1252a68`） | 拆為 7 分頁 mixin；實機驗證（含真 sounddevice）全數通過 |
 | 8 | `requirements-win.txt` 無版本上限 | 中低 | ✅ 已修（`266280d`） | 實機驗證乾淨 venv 89 秒安裝成功、零衝突 |
@@ -73,8 +73,9 @@ v3.4.1 已修正 ZIP 中文檔名，v3.4.2 補上 STT readiness 契約與 fail-c
 | 29-3 | 設定頁麥克風測試在 GUI thread 以 `time.sleep()` 阻塞 3 秒，錄音期間整個視窗像當機 | 中（真人驗證 UX 與 UI Automation 穩定性） | ✅ 已修（`894a101`，2026-07-24） | `sd.rec` 保持非同步，倒數改由 `QTimer` 驅動；完成後才 `sd.wait()`／計算 RMS，成功、靜音、例外均清除 timer/progress/recording。真人只需回答準備提示並發聲；2 項回歸測試通過。 |
 | 29-4 | `main.py` 緊急 crash log 仍有最後一個 bare `except:`，可能連 `KeyboardInterrupt`／`SystemExit` 一併吞掉 | 低（錯誤處理一致性） | ✅ 已修（`e0b690d`，2026-07-24） | 收窄為 `except Exception`，新增 AST 全 repo guard；任何新 bare-except 都會讓 pytest 失敗。 |
 | 30-1 | 對尚未顯示、但已掛到 `QSystemTrayIcon` 的 closed context menu 直接呼叫 `QAction.trigger()`，在 PyQt 6.11／Windows QA 程序可能 native fail-fast，造成錯把驗證方法缺陷判成產品崩潰 | 低（QA 假陰性） | ✅ 已修（`181e060`，2026-07-26） | 新增 `tests/manual/manual_tray_windows_check.py`：先 `QMenu.popup()` 走可見選單路徑再觸發 action，callback 例外明確 `[FAIL]`、保留非零 exit code並清理 Qt 元件；`docs/DEVELOPMENT.md` 記錄此限制與逐命令 `$LASTEXITCODE` 檢查。正式 v3.4.4 Settings／About 均 PASS。 |
+| 30-2 | 依賴／上游排程以 GitHub issue 提醒，但 repo Issues 關閉；發現更新後 workflow 必然失敗 | 中低（維護提醒失效） | ✅ 已修（2026-07-28） | 2026-07-27 上游檢查 run `30240895198` 實證在 `gh issue create` 失敗。repo 現已啟用 Issues；freshness tracker 同步補上 stale SHA guard、同 issue 重開／更新／關閉，並加入 Dependabot 與 CodeQL。詳見 `docs/DECISIONS.md` 2026-07-28。 |
 
-**統計**：已修/已驗證 48 項、待修 0 項、決定不做 0 項、需實機驗證 3 項（27-1／27-2／28-3）。
+**統計**：已修/已驗證 49 項、待修 0 項、決定不做 0 項、需實機驗證 3 項（27-1／27-2／28-3）。
 
 ---
 

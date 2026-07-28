@@ -4,6 +4,13 @@
 
 > **關於歷史 commit hash**：v3.1.0 發版時 fork 開發歷史已 squash 成單一 commit（`84d1b28`）。本檔引用的更早 hash 屬 squash 前的開發過程紀錄，已不存在於 git 歷史，僅作文件內識別碼保留。
 
+## 2026-07-28 — 依賴與安全排程比照其他專案，但不照搬自動合併
+
+- **現況覆核**：先 fetch 並直接比較 `voxprose`、`yt_fetch`、`gpt-ai-assistant` 的最新 `origin/main` 與 GitHub Actions。後兩者已有 Dependabot、freshness tracker、CodeQL 與風險分類／guarded merge；VoxProse 只有每月 freshness 與每週上游檢查。更重要的是 GitHub Issues 當時關閉，導致 2026-07-27 上游排程 run `30240895198` 在找到新 commit 後無法建立提醒而失敗。
+- **修正既有 freshness 不可重現**：舊工具優先採用「執行檢查的電腦目前安裝版本」，缺套件才退回 requirements 下限，同一個 commit 會因 runner 環境不同得到不同結論。新版只解析兩份 requirements 並查 PyPI JSON API，明列宣告範圍、最新版、基線可更新或上限外主線；查詢失敗也視為需要注意。
+- **新增維護面**：Dependabot 每週檢查 pip 與 GitHub Actions；freshness workflow 加入 main 依賴檔 push 觸發、open PR 彙整、concurrency、stale SHA guard，以及 issue 建立／重開／整頁更新／自動關閉；CodeQL 在 push、PR、手動與每週排程跑 Python `security-extended`。GitHub repo 同步啟用 Issues、vulnerability alerts、Dependabot security updates，並建立 `dependencies`／`python`／`github-actions` labels。
+- **不採用自動合併**：`yt_fetch`／`gpt-ai-assistant` 的低風險工具更新可經 guarded merge；VoxProse 的直接依賴幾乎全是 Windows 執行期、GUI、音訊、STT、ONNX/CUDA 或雲端 SDK，GitHub Actions 又含不會在一般 PR 真正執行的 Release／上游提醒路徑。故本 repo 所有 Dependabot PR 一律人工審查；完整 CI 只是最低 gate，涉及相關行為時仍須真機／Release 驗證。
+
 ## 2026-07-24 — QA checkpoint：非阻塞前景偵測與 Node 24 workflow
 
 - GitHub workflow action 全面升至 Node 24 世代，避免 runner 強制相容模式掩蓋未來失效風險；版本來源逐一以各 action 官方 release／`action.yml` 驗證。

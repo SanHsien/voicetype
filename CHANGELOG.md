@@ -10,9 +10,18 @@
 
 ## [Unreleased]
 
+### Added
+
+- **依賴與安全自動維護**：新增 Dependabot 每週 Python／GitHub Actions 更新、CodeQL `security-extended` 每週掃描；GitHub repo 啟用 Issues、vulnerability alerts 與 Dependabot security updates。Windows／CUDA／Release 相關更新一律人工審查，不自動合併。
+
 ### Changed
 
 - **README 公開入口**：中英文 README 對齊專案首頁結構，新增 Release／CI／Windows Release／MIT／Python／Windows／local-first／pytest 徽章、雙向語言連結、正式版下載指引、專案結構、文件索引、來源致謝與授權分節。
+- **依賴新鮮度追蹤**：checker 改為只比較 repo 宣告與 PyPI，不再受執行機器已安裝套件影響；workflow 會彙整 open Dependabot PR、避免舊 SHA 覆寫、重開／更新／自動關閉同一個維護 issue。
+
+### Fixed
+
+- **排程提醒無法建立 issue**：GitHub Issues 原先關閉，2026-07-27 上游更新檢查找到新 commit 後因此失敗；現已啟用 Issues，恢復依賴與上游兩條提醒 workflow 的寫入目標。
 
 ## [3.4.4] - 2026-07-26
 

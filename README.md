@@ -2,6 +2,7 @@
 
 [![Release](https://img.shields.io/github/v/release/SanHsien/voxprose?sort=semver)](https://github.com/SanHsien/voxprose/releases/latest)
 [![CI](https://github.com/SanHsien/voxprose/actions/workflows/ci.yml/badge.svg)](https://github.com/SanHsien/voxprose/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/SanHsien/voxprose/actions/workflows/codeql.yml/badge.svg)](https://github.com/SanHsien/voxprose/actions/workflows/codeql.yml)
 [![Windows Release](https://github.com/SanHsien/voxprose/actions/workflows/release.yml/badge.svg)](https://github.com/SanHsien/voxprose/actions/workflows/release.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.10–3.14](https://img.shields.io/badge/Python-3.10--3.14-3776AB.svg?logo=python&logoColor=white)](pyproject.toml)
@@ -187,7 +188,7 @@ python main.py
 python tools\verify_release_zip.py dist\ShengChengWen-Windows-Lite-vX.Y.Z.zip
 ```
 
-推送 `v*` tag 會觸發 `.github/workflows/release.yml` 自動建置 Lite + NoModel 兩版，通過 ZIP CRC／UTF-8 中文檔名／必要資源 gate 後才發佈到 GitHub Releases（`workflow_dispatch` 手動觸發僅產生 artifact，不發佈）。完整實機驗證流程見 [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md) 的「Windows Release 實機驗證」章節；`.github/workflows/dependency-freshness.yml` 每月檢查 `requirements-win.txt`/`requirements-cuda-win.txt` 是否落後 PyPI 最新版。
+推送 `v*` tag 會觸發 `.github/workflows/release.yml` 自動建置 Lite + NoModel 兩版，通過 ZIP CRC／UTF-8 中文檔名／必要資源 gate 後才發佈到 GitHub Releases（`workflow_dispatch` 手動觸發僅產生 artifact，不發佈）。完整實機驗證流程見 [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md) 的「Windows Release 實機驗證」章節。Dependabot 每週檢查 Python／GitHub Actions 更新，`dependency-freshness.yml` 每月盤點 PyPI 與未結 PR，CodeQL 每週執行擴充安全掃描；Windows／CUDA 依賴一律保留人工審查，不自動合併。
 
 ## 專案結構
 

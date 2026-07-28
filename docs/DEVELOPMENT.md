@@ -45,7 +45,24 @@ LLM 潤飾 (llm/：呼叫端組好 prompt（含 soul/ 的情境模板 + 格式�
 
 - **Windows 10/11（本 fork 唯一開發與執行環境）**：Python 3.10–3.14，建議搭配 NVIDIA GPU 以使用 CUDA 加速 `faster-whisper`（無 GPU 則自動退回 CPU）。
 - 本工作樹**沒有 macOS 程式碼**（見下方「關於 macOS」）；上游 macOS 版本請直接參考原作者 repo。
-- 依賴清單見根目錄 [`../requirements-win.txt`](../requirements-win.txt)（一般依賴）與 [`../requirements-cuda-win.txt`](../requirements-cuda-win.txt)（僅 NVIDIA GPU 需要，`setup_win.bat` 偵測 `nvidia-smi` 後才裝）。**本 repo 沒有 `requirements.txt`**（那是上游 macOS 主線的檔名，含 `pyobjc-*`/`mlx` 等 macOS 專屬套件，早已在 Windows 專用化時移除，不要新增或參考它）。**主版本上限鎖定**：兩份 requirements 檔案每個套件都同時宣告下限與主版本上限（如 `PyQt6>=6.6.0,<7`），避免 `pip install` 未來靜默抓到不相容的新主版；下限維持既有值不變，上限依 `tools/check_dependency_freshness.py` 查得的當時 PyPI 最新版本鎖下一主版（詳見 `docs/DECISIONS.md`）。
+- 依賴清單見根目錄 [`../requirements-win.txt`](../requirements-win.txt)（一般依賴）與 [`../requirements-cuda-win.txt`](../requirements-cuda-win.txt)（僅 NVIDIA GPU 需要，`setup_win.bat` 偵測 `nvidia-smi` 後才裝）。**本 repo 沒有 `requirements.txt`**（那是上游 macOS 主線的檔名，含 `pyobjc-*`/`mlx` 等 macOS 專屬套件，早已在 Windows 專用化時移除，不要新增或參考它）。**版本範圍政策**：每個套件同時宣告已支援的最低版本與主版本上限（如 `PyQt6>=6.6.0,<7`），避免安裝時靜默跨到未驗證主版；Dependabot 可提出基線更新，但必須人工審查，不可自動合併（詳見下節與 `docs/DECISIONS.md`）。
+
+### 依賴與安全維護
+
+- [`.github/dependabot.yml`](../.github/dependabot.yml)：每週一 06:20（Asia/Taipei）檢查兩份 requirements 與全部 GitHub Actions；CUDA、一般 Windows runtime、major 更新分組開 PR。
+- [`.github/workflows/dependency-freshness.yml`](../.github/workflows/dependency-freshness.yml)：每月 1 日 10:00（Asia/Taipei）及依賴宣告推上 `main` 時執行，將 repo 版本範圍與 PyPI 最新版、open Dependabot PR 彙整到同一個維護 issue；狀態清空後自動關閉。
+- [`tools/check_dependency_freshness.py`](../tools/check_dependency_freshness.py)：只讀 repo 宣告與 PyPI JSON API，不讀目前電腦／runner 已安裝套件，因此本機與 Actions 結果一致。版本上限外的新主線會標為「需評估」，不代表可直接升級。
+- [`.github/workflows/codeql.yml`](../.github/workflows/codeql.yml)：push、PR、手動及每週一排程執行 Python `security-extended` 查詢。
+- GitHub repo 已啟用 Issues、vulnerability alerts、Dependabot security updates；排程提醒與安全更新 PR 才能正常運作。
+
+本地預覽依賴報告：
+
+```powershell
+$env:PYTHONUTF8 = "1"
+python tools\check_dependency_freshness.py --output dependency-freshness-report.md
+```
+
+所有依賴 PR 都要人工審查。至少確認套件 changelog、Python 3.10–3.14 的 Windows wheel 與完整 CI；涉及 PyQt6／錄音／Whisper／ONNX Runtime／CUDA／Release actions 時，另做對應真機或可攜包驗證。
 
 ## Windows 上啟動
 
