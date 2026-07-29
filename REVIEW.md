@@ -74,8 +74,9 @@ v3.4.1 已修正 ZIP 中文檔名，v3.4.2 補上 STT readiness 契約與 fail-c
 | 29-4 | `main.py` 緊急 crash log 仍有最後一個 bare `except:`，可能連 `KeyboardInterrupt`／`SystemExit` 一併吞掉 | 低（錯誤處理一致性） | ✅ 已修（`e0b690d`，2026-07-24） | 收窄為 `except Exception`，新增 AST 全 repo guard；任何新 bare-except 都會讓 pytest 失敗。 |
 | 30-1 | 對尚未顯示、但已掛到 `QSystemTrayIcon` 的 closed context menu 直接呼叫 `QAction.trigger()`，在 PyQt 6.11／Windows QA 程序可能 native fail-fast，造成錯把驗證方法缺陷判成產品崩潰 | 低（QA 假陰性） | ✅ 已修（`181e060`，2026-07-26） | 新增 `tests/manual/manual_tray_windows_check.py`：先 `QMenu.popup()` 走可見選單路徑再觸發 action，callback 例外明確 `[FAIL]`、保留非零 exit code並清理 Qt 元件；`docs/DEVELOPMENT.md` 記錄此限制與逐命令 `$LASTEXITCODE` 檢查。正式 v3.4.4 Settings／About 均 PASS。 |
 | 30-2 | 依賴／上游排程以 GitHub issue 提醒，但 repo Issues 關閉；發現更新後 workflow 必然失敗 | 中低（維護提醒失效） | ✅ 已修（2026-07-28） | 2026-07-27 上游檢查 run `30240895198` 實證在 `gh issue create` 失敗。repo 現已啟用 Issues；freshness tracker 同步補上 stale SHA guard、同 issue 重開／更新／關閉，並加入 Dependabot 與 CodeQL。詳見 `docs/DECISIONS.md` 2026-07-28。 |
+| 30-3 | 依賴 freshness checker 把「PyPI 最新版高於最低支援版」一律當成待維護，忽略最新版仍在允許範圍內，導致 issue #1 永遠無法自動關閉 | 低中（維護提醒永久假陽性） | ✅ 已修（`b926543`，2026-07-29） | `baseline_behind` 改為純報告資訊；只有最新版超出上限、PyPI 查詢失敗或 open Dependabot PR 才需 issue。新增 3 條回歸測試，完整 pytest 471 passed、10 skipped；live PyPI 查詢 18 個直接依賴皆未超出上限，`needs_attention=false`。 |
 
-**統計**：已修/已驗證 49 項、待修 0 項、決定不做 0 項、需實機驗證 3 項（27-1／27-2／28-3）。
+**統計**：已修/已驗證 50 項、待修 0 項、決定不做 0 項、需實機驗證 3 項（27-1／27-2／28-3）。
 
 ---
 
