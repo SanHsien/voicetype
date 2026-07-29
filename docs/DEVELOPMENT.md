@@ -50,8 +50,8 @@ LLM 潤飾 (llm/：呼叫端組好 prompt（含 soul/ 的情境模板 + 格式�
 ### 依賴與安全維護
 
 - [`.github/dependabot.yml`](../.github/dependabot.yml)：每週一 06:20（Asia/Taipei）檢查兩份 requirements 與全部 GitHub Actions；CUDA、一般 Windows runtime、major 更新分組開 PR。
-- [`.github/workflows/dependency-freshness.yml`](../.github/workflows/dependency-freshness.yml)：每月 1 日 10:00（Asia/Taipei）及依賴宣告推上 `main` 時執行，將 repo 版本範圍與 PyPI 最新版、open Dependabot PR 彙整到同一個維護 issue；狀態清空後自動關閉。
-- [`tools/check_dependency_freshness.py`](../tools/check_dependency_freshness.py)：只讀 repo 宣告與 PyPI JSON API，不讀目前電腦／runner 已安裝套件，因此本機與 Actions 結果一致。版本上限外的新主線會標為「需評估」，不代表可直接升級。
+- [`.github/workflows/dependency-freshness.yml`](../.github/workflows/dependency-freshness.yml)：每月 1 日 10:00（Asia/Taipei）及依賴宣告推上 `main` 時執行，將 repo 版本範圍、PyPI 最新版與 open Dependabot PR 彙整到同一份報告；只有最新版超出上限、查詢失敗或仍有 open PR 時才建立／維持 issue，狀態清空後自動關閉。
+- [`tools/check_dependency_freshness.py`](../tools/check_dependency_freshness.py)：只讀 repo 宣告與 PyPI JSON API，不讀目前電腦／runner 已安裝套件，因此本機與 Actions 結果一致。最新版未超出版本上限時標為「最新版未超出版本範圍」，實際安裝仍由 pip 依 Python 版本與 wheel 可用性解析相容版，不因最低支援版較舊製造永久 issue；版本上限外的新主線才標為「需評估」，但不代表可直接升級。
 - [`.github/workflows/codeql.yml`](../.github/workflows/codeql.yml)：push、PR、手動及每週一排程執行 Python `security-extended` 查詢。
 - GitHub repo 已啟用 Issues、vulnerability alerts、Dependabot security updates；排程提醒與安全更新 PR 才能正常運作。
 

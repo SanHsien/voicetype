@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""檢查 VoxProse 直接依賴是否有較新版本。
+"""檢查 VoxProse 直接依賴的最新版是否仍在允許範圍內。
 
 此工具只讀取 requirements-win.txt / requirements-cuda-win.txt 的宣告與
 PyPI JSON API，不讀取目前電腦已安裝的套件版本，確保本機與 GitHub Actions
@@ -118,21 +118,23 @@ def is_blocked_by_upper_bound(version: str, upper: Optional[Dict[str, str]]) -> 
 def collect_status(
     packages: "Dict[str, Dict[str, object]]",
 ) -> "List[Dict[str, object]]":
-    """收集 repo 宣告基線、PyPI 最新版與維護狀態。"""
+    """收集 repo 宣告範圍、PyPI 最新版與維護狀態。"""
     rows = []
     for package in packages.values():
         minimum = str(package["minimum"])
         latest = fetch_pypi_version(str(package["name"]))
         check_failed = not minimum or latest is None
-        outdated = bool(minimum and latest and is_newer_version(latest, minimum))
+        baseline_behind = bool(minimum and latest and is_newer_version(latest, minimum))
         blocked = bool(latest and is_blocked_by_upper_bound(latest, package.get("upper")))
+        needs_attention = bool(blocked or check_failed)
         rows.append(
             {
                 **package,
                 "latest": latest or "unknown",
-                "outdated": outdated,
+                "baseline_behind": baseline_behind,
                 "blocked_by_upper": blocked,
                 "check_failed": check_failed,
+                "needs_attention": needs_attention,
             }
         )
     return rows
@@ -151,8 +153,8 @@ def render_markdown(rows: "List[Dict[str, object]]") -> str:
             status = "檢查失敗"
         elif row["blocked_by_upper"]:
             status = "有新版主線，需評估相容性"
-        elif row["outdated"]:
-            status = "可更新版本基線"
+        elif row["baseline_behind"]:
+            status = "最新版未超出版本範圍"
         else:
             status = "OK"
         files = "、".join(f"`{name}`" for name in row["files"])
@@ -164,8 +166,9 @@ def render_markdown(rows: "List[Dict[str, object]]") -> str:
         [
             "",
             "本報告只比較 repo 宣告與 PyPI，不使用 runner 或維護者電腦目前安裝的版本，",
-            "因此每次執行結果可重現。版本上限外的新主線只表示「需要評估」，不代表可以",
-            "直接升級。",
+            "因此每次執行結果可重現。最新版未超出版本上限時，pip 仍會依 Python 版本與",
+            "wheel 可用性解析相容版本；不需僅因最低支援版較舊而開啟維護 issue。",
+            "版本上限外的新主線才表示「需要評估」，不代表可以直接升級。",
             "",
             "## 處理流程",
             "",
@@ -174,14 +177,15 @@ def render_markdown(rows: "List[Dict[str, object]]") -> str:
             "   本 repo 不自動合併依賴 PR。",
             "3. 通過完整 CI；會影響錄音、STT、CUDA、UI 或打包鏈時，再完成對應 Windows",
             "   實機／Release 驗證後合併。",
-            "4. 追蹤依賴皆更新且沒有 open Dependabot PR 時，排程會自動關閉維護 issue。",
+            "4. 最新版均在 repo 允許範圍內且沒有 open Dependabot PR 時，排程會自動關閉維護 issue。",
         ]
     )
     return "\n".join(lines) + "\n"
 
 
 def write_github_output(
-    outdated: bool,
+    baseline_behind: bool,
+    blocked_by_upper: bool,
     check_failed: bool,
     report_path: Path,
 ) -> None:
@@ -190,15 +194,21 @@ def write_github_output(
     if not output_path:
         return
     with open(output_path, "a", encoding="utf-8") as output:
-        output.write(f"outdated={'true' if outdated else 'false'}\n")
+        output.write(f"baseline_behind={'true' if baseline_behind else 'false'}\n")
+        output.write(f"blocked_by_upper={'true' if blocked_by_upper else 'false'}\n")
         output.write(f"check_failed={'true' if check_failed else 'false'}\n")
-        output.write(f"needs_attention={'true' if outdated or check_failed else 'false'}\n")
+        output.write(
+            f"needs_attention={'true' if blocked_by_upper or check_failed else 'false'}\n"
+        )
         output.write(f"report_path={report_path.as_posix()}\n")
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="檢查 VoxProse requirements-win.txt / requirements-cuda-win.txt 是否有新版"
+        description=(
+            "檢查 VoxProse requirements-win.txt / requirements-cuda-win.txt "
+            "是否仍涵蓋 PyPI 最新版"
+        )
     )
     parser.add_argument(
         "--output",
@@ -222,10 +232,16 @@ def main() -> int:
     output_path.write_text(report, encoding="utf-8")
     print(report)
 
-    outdated = any(bool(row["outdated"]) for row in rows)
+    baseline_behind = any(bool(row["baseline_behind"]) for row in rows)
+    blocked_by_upper = any(bool(row["blocked_by_upper"]) for row in rows)
     check_failed = not rows or any(bool(row["check_failed"]) for row in rows)
     if args.github_output:
-        write_github_output(outdated, check_failed, output_path)
+        write_github_output(
+            baseline_behind,
+            blocked_by_upper,
+            check_failed,
+            output_path,
+        )
     return 0
 
 

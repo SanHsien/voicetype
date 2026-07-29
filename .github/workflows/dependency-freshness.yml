@@ -129,5 +129,5 @@ jobs:
 
           issue="$(gh issue list --state open --search '依賴新鮮度檢查 in:title' --json number --jq '.[0].number // empty')"
           if [ -n "$issue" ]; then
-            gh issue close "$issue" --comment "本次檢查已確認直接依賴皆為最新，且沒有 open Dependabot PR，關閉提醒。"
+            gh issue close "$issue" --comment "本次檢查已確認 PyPI 最新版均在 repo 允許範圍內，且沒有 open Dependabot PR，關閉提醒。"
           fi

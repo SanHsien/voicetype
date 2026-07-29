@@ -4,6 +4,12 @@
 
 > **關於歷史 commit hash**：v3.1.0 發版時 fork 開發歷史已 squash 成單一 commit（`84d1b28`）。本檔引用的更早 hash 屬 squash 前的開發過程紀錄，已不存在於 git 歷史，僅作文件內識別碼保留。
 
+## 2026-07-29 — Freshness issue 只追蹤真正超出依賴範圍的更新
+
+- **問題**：初版 checker 只要 PyPI 最新版高於 requirements 的最低支援版，就標為「可更新版本基線」並讓 `needs_attention=true`。本 repo 採 `>=最低支援版,<主版上限` 的相容範圍，範圍內最新版本來就會由 pip 解析；因此首次執行把 17 個仍在允許範圍內的套件全部列為待維護，issue #1 即使沒有 Dependabot PR 也永遠不會自動關閉。
+- **決定**：保留 `baseline_behind` 作報告資訊，但只有 PyPI 最新版超出宣告上限、PyPI 查詢失敗或有 open Dependabot PR 才需要維護 issue。範圍內新版顯示「最新版未超出版本範圍」，實際安裝仍交由 pip 依 Python 版本與 wheel 可用性解析，不強迫把最低支援版抬到可能破壞 Python 3.10–3.14 相容性的最新版本。
+- **驗證**：新增範圍內新版不需注意、上限外新版需注意與 GitHub output 三條回歸測試；workflow 關閉訊息同步改為「最新版均在 repo 允許範圍內」，避免把 range 誤寫成 exact pin。
+
 ## 2026-07-28 — 依賴與安全排程比照其他專案，但不照搬自動合併
 
 - **現況覆核**：先 fetch 並直接比較 `voxprose`、`yt_fetch`、`gpt-ai-assistant` 的最新 `origin/main` 與 GitHub Actions。後兩者已有 Dependabot、freshness tracker、CodeQL 與風險分類／guarded merge；VoxProse 只有每月 freshness 與每週上游檢查。更重要的是 GitHub Issues 當時關閉，導致 2026-07-27 上游排程 run `30240895198` 在找到新 commit 後無法建立提醒而失敗。
