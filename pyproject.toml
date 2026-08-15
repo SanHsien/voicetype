@@ -1,7 +1,7 @@
 [project]
 name = "voxprose"
 version = "3.4.4"
-description = "聲成文 VoxProse — Windows-only fork of jfamily4tw/voicetype4tw-mac (VoiceType4TW / 嘴炮輸入法, win-stable), maintained by SanHsien"
+description = "Local-first AI voice typing for Windows with Whisper transcription, optional AI rewriting, translation, and custom output workflows."
 readme = "README.md"
 requires-python = ">=3.10,<3.15"
 license = { text = "MIT" }
