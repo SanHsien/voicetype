@@ -1,6 +1,7 @@
 MIT License
 
 Copyright (c) 2026 Jimmy Chiou, CC58TW, and VoiceType4TW contributors
+Copyright (c) 2026 SanHsien
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,18 +20,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-------------------------------------------------------------
-
-Fork additions Copyright (c) 2026 SanHsien, licensed under the same MIT terms
-above. This fork (`SanHsien/voxprose`, product name 聲成文 VoxProse) builds on
-the upstream project `jfamily4tw/voicetype4tw-mac` (VoiceType4TW / 嘴炮輸入法),
-whose Windows-only edition was maintained upstream by go-mask
-(`win-go-mask-202607` branch) before this fork; see NOTICE.md for provenance
-details.
-
-本 fork（`SanHsien/voxprose`，產品名稱「聲成文 VoxProse」）新增部分版權為
-(c) 2026 SanHsien，採用與上方相同的 MIT 授權條款。本 fork 基於上游專案
-`jfamily4tw/voicetype4tw-mac`（VoiceType4TW／嘴炮輸入法）開發，其 Windows
-專用版在本 fork 之前由 go-mask（`win-go-mask-202607` 分支）維護；來源查證
-細節見 NOTICE.md。
