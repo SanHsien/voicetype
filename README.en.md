@@ -1,255 +1,157 @@
+<div align="center">
+
 # 聲成文 VoxProse
+
+**Local-first AI voice typing for Windows: speak → transcribe → optionally polish or translate → type into the focused app.**
+
+**Speak naturally. Write clearly.**
 
 [![Release](https://img.shields.io/github/v/release/SanHsien/voxprose?sort=semver)](https://github.com/SanHsien/voxprose/releases/latest)
 [![CI](https://github.com/SanHsien/voxprose/actions/workflows/ci.yml/badge.svg)](https://github.com/SanHsien/voxprose/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/SanHsien/voxprose/actions/workflows/codeql.yml/badge.svg)](https://github.com/SanHsien/voxprose/actions/workflows/codeql.yml)
-[![Windows Release](https://github.com/SanHsien/voxprose/actions/workflows/release.yml/badge.svg)](https://github.com/SanHsien/voxprose/actions/workflows/release.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.10–3.14](https://img.shields.io/badge/Python-3.10--3.14-3776AB.svg?logo=python&logoColor=white)](pyproject.toml)
 [![Platform: Windows 10/11](https://img.shields.io/badge/Platform-Windows%2010%2F11-0078D4.svg?logo=windows11&logoColor=white)](https://www.microsoft.com/windows/)
-[![Local-first](https://img.shields.io/badge/Architecture-Local--first-2E7D32.svg)](docs/DECISIONS.md)
-[![Tests: pytest](https://img.shields.io/badge/Tests-pytest-0A9EDC.svg?logo=pytest&logoColor=white)](tests)
 
-[繁體中文](README.md) | [English](README.en.md)
+[Download latest release](https://github.com/SanHsien/voxprose/releases/latest) · [Traditional Chinese](README.md)
 
-**聲成文 VoxProse** is a local-first AI voice typing tool built for Windows 10/11. Hold or toggle a global hotkey, speak naturally, transcribe with local Faster-Whisper (or an optional cloud engine), optionally polish the text with an LLM, and paste it back into the app that currently has input focus.
+</div>
 
-**Speak naturally. Write clearly.**
+![VoxProse Dashboard](assets/screenshot-pc-01.jpg)
 
-> This project is a Windows-only fork of [`jfamily4tw/voicetype4tw-mac`](https://github.com/jfamily4tw/voicetype4tw-mac) (VoiceType4TW / 嘴炮輸入法), based on `win-stable` v3.0.1 (`win-go-mask` lineage). The original authors are Jimmy (吉米丘) and CC58TW; go-mask maintains the upstream Windows edition. See [NOTICE.md](NOTICE.md) for the full provenance and attribution.
+VoxProse is a Windows 10/11 voice-typing tool. Hold or toggle a global hotkey, speak naturally, transcribe with local Faster-Whisper or an optional cloud STT engine, optionally polish or translate the text with an LLM, and send the result back to the application that currently has input focus.
 
-The [Traditional Chinese README](README.md) is the primary project introduction.
+It is built for people who want to type less by speaking, while keeping control over whether speech recognition and text processing stay local or use cloud providers.
 
-## What it is
+## Highlights
 
-- **Local-first by default**: local Faster-Whisper handles recognition, so recordings and personal data do not have to leave your PC.
-- **Voice typing in any app**: a global hotkey records your voice and pastes the result into LINE, browsers, Office, or any focused input field.
-- **Flexible recognition**: use CPU, NVIDIA CUDA, or bring your own API key for Groq, Gemini, or OpenRouter.
-- **Context-aware polishing**: the three-layer Soul System controls tone, scenario, and format, with optional automatic scenario switching by foreground app.
+- **Voice typing in any focused Windows app**: LINE, browsers, Office, chat tools, editors, and other input fields.
+- **Local Whisper first**: Faster-Whisper can run on CPU or NVIDIA CUDA.
+- **Optional cloud STT**: bring your own API key for Groq, Gemini, or OpenRouter speech recognition.
+- **Optional AI rewriting and translation**: use local Ollama or cloud LLM providers such as OpenAI, Claude, Gemini, and OpenRouter.
+- **Three-layer writing system**: Base + Scenario + Format lets the same spoken input produce different styles for different contexts.
+- **Foreground-app scenario switching**: optionally map apps such as Outlook or LINE to different Scenario templates; off by default.
+- **PTT, Toggle, and always-on modes**: push-to-talk, one-click toggle, or RMS/Silero VAD speech detection.
+- **Vocabulary memory and diagnostics**: remember proper nouns and export a diagnostic bundle with API keys removed.
 
----
+## Download
 
-## 🚀 Quick Start
+Go to [Latest Release](https://github.com/SanHsien/voxprose/releases/latest). The published Windows release currently provides two portable ZIP variants:
 
-### Official release (recommended)
+| Package | Best for |
+|---|---|
+| `ShengChengWen-Windows-Lite-*.zip` | CPU users or anyone who wants a smaller initial download; excludes CUDA and Whisper model files |
+| `ShengChengWen-Windows-NoModel-*.zip` | NVIDIA GPU users; includes the CUDA runtime but not a Whisper model |
 
-1. Open [GitHub Releases](https://github.com/SanHsien/voxprose/releases/latest) and download the latest package:
+First run:
 
-   | Package | Best for |
-   |---------|----------|
-   | `ShengChengWen-Windows-Lite-*.zip` | General PCs or CPU-only use; smaller package without CUDA or a model |
-   | `ShengChengWen-Windows-NoModel-*.zip` | NVIDIA GPU users; includes the CUDA runtime but not a model |
+1. Download the appropriate ZIP and extract it to a simple path such as `D:\VoxProse`.
+2. Run `VoxProse.exe`.
+3. Choose or download a speech model when prompted.
+4. Configure a hotkey, focus the target input field, and start speaking.
 
-2. Extract it to a simple path such as `D:\VoxProse`.
-3. Double-click `VoxProse.exe`; the selected speech model downloads on first launch.
+Release assets include matching `.sha256` checksum files. Current binaries are not Authenticode-signed, so Windows SmartScreen may show an unknown-publisher warning. Download only from this repository's Releases and verify SHA-256 when appropriate.
 
-Each ZIP has a matching `.sha256` checksum. Release packages are published only after ZIP CRC, UTF-8 filename, and required-resource validation.
+### Setup from source
 
-### Automatic setup from source
-
-**1. Download the source ZIP**: [download the `main` branch](https://github.com/SanHsien/voxprose/archive/refs/heads/main.zip) (or click the green **Code** button above → **Download ZIP**)
-
-**2. Extract** it to a simple path, e.g. `D:\VoxProse` (avoid `C:\Program Files` — insufficient write permissions will be blocked by the environment check)
-
-**3. Double-click `setup_win.bat`** — everything from here on is automatic:
-
-- No Python installed? It automatically downloads a portable Python (no admin rights needed, doesn't pollute your system)
-- Has an NVIDIA GPU? CUDA acceleration is enabled automatically; otherwise it falls back to CPU mode (saving an 800MB download)
-- Automatically downloads the speech recognition model (~1.5GB), compiles the launcher, and creates a desktop shortcut
-
-![Batch install](assets/batch-install.jpg)
-
-Requires internet access; depending on connection speed this takes about 10–30 minutes. Once done, double-click the "**聲成文**" shortcut on your desktop to start using it.
-
-> 💡 If Windows pops up a blue "Windows protected your PC" screen when you double-click, click "More info" → "Run anyway" (this happens for any file downloaded from the internet, and won't appear again afterward).
-> For troubleshooting, see the "Installation Troubleshooting" section below and the [Install & Download Guide](安裝下載教學.md).
-
----
-
-## Features (Windows)
-
-- **One-click install**: `setup_win.bat` automatically downloads a portable Python and conditionally installs CUDA based on NVIDIA GPU detection.
-- **Global hotkeys**: push-to-talk (PTT) or toggle mode.
-- **Always-on mode**: VAD detects speech and automatically segments it for recognition, hands-free; detection engine is switchable between RMS energy threshold (default) and Silero VAD neural network (higher accuracy; normal installs include a compatible `onnxruntime` version directly).
-- **Local recognition**: Faster-Whisper with CUDA acceleration support; optionally use Groq / Gemini / OpenRouter cloud engines.
-- **Microphone device selection + gain + AGC**: switch between multiple microphones (headset/USB/built-in) from the settings page, with automatic hot-plug detection; manual gain (50–300%) and automatic gain control (AGC) can be toggled independently.
-- **Three-layer Soul System**: Base Soul + Scenario Template + Output Format, with tone and style polished via LLM.
-- **Automatic scenario switching by foreground app (optional)**: configure an "app → scenario template" mapping so the right scenario is applied automatically based on the active window when you start recording (e.g. Business Reply in Outlook, Social Media Post in LINE); off by default.
-- **Multi-monitor follow, position memory, non-intrusive focus injection, smart vocabulary learning, and instant translation magic words.**
-
-## Feature Tour
-
-![Dashboard](assets/screenshot-pc-01.jpg)
-
-### Workflow
-
-1. Press your configured hotkey and start speaking
-2. The system recognizes your speech via local Whisper or a cloud engine
-3. Choose to output the text directly, or send it to an LLM first for polishing, tone cleanup, and style adjustment
-4. The result is automatically sent to whichever application currently has input focus
-5. If a magic word is used, translation happens automatically in the pipeline before output
-
-### Floating Recording Status Window
-
-![Floating recording status window](assets/screenshot-miclevel.jpg)
-
-- No "AI" label on the left: recognized and output directly
-- "AI" label on the left: output only after LLM polishing is complete
-- Yellow mode: recognition begins after you stop speaking
-- Translate to English / Japanese: speak Chinese directly, output in the corresponding language
-
-### Recognition & AI Settings
-
-![Recognition & AI settings](assets/screenshot-pc-02.jpg)
-
-Choose the speech engine (local Whisper / Groq / Gemini / OpenRouter), model size, and the LLM used for AI polishing (local Ollama, or cloud services such as OpenAI / Claude / Gemini).
-
-### Soul Governance: Three-Layer Stacking System
-
-![Soul governance](assets/screenshot-pc-03.jpg)
-
-Freely mix and match the AI's "soul composition":
-
-1. **🏠 Base Soul**: defines the AI's core values, e.g. no filler, fix typos, output in Traditional Chinese.
-2. **🎭 Scenario Template**: defines the conversational style for a specific context, e.g. `💼 Business Reply`, `🌐 Business English`, `📱 Social Media Post`.
-3. **📝 Output Format**: decides how the final result is presented, e.g. email format, bullet-point notes, Markdown table.
-
-Combine different souls anytime from the system tray menu, turning the input method into a true personal assistant.
-
-The Soul settings page also has an "Automatic Scenario Switching by Foreground App" section (off by default): enable it and set up "app filename → scenario template" rules (use the "Detect Current Foreground App" button to find the correct filename), and the scenario matching the active window at the moment you start recording is applied automatically for that recognition; if no rule matches, it falls back to whatever scenario you selected manually. This only affects the LLM-polishing stage, so "AI Polishing/Translation" must be enabled for it to have any effect.
-
-### Vocabulary Memory
-
-![Vocabulary memory](assets/screenshot-pc-04.jpg)
-
-Manually enter proper nouns you want recognized (e.g. a client's brand name); any term that appears three or more times is recorded automatically. Each week's memory is condensed and saved separately, preserving long-term memory over time.
-
-### Translating Together with the Soul and Scenario
-
-Three options — translate to English, translate to Japanese, and restore original — can be stacked on top of the soul-injected result: choose which soul to play, then which language to output in.
-
-### Custom Sync Folder
-
-![Cloud sync](assets/screenshot-pc-07.jpg)
-
-Put your settings in your own sync directory (iCloud, Google Drive, or a NAS all work), so memory and frequently used vocabulary are shared across machines.
-
-### Statistics
-
-![Statistics](assets/screenshot-pc-05.jpg)
-
-Records the total length of speech you've input, converts it using the average person's typing speed, and shows how much time it has saved you.
-
-### System Settings
-
-![System settings](assets/screenshot-pc-06.jpg)
-
-Configure the trigger hotkey (push-to-talk PTT or single-click toggle), auto-paste of results (also saved to the clipboard — press Ctrl-V if auto-paste doesn't happen), and verbose output (for terminal debugging). The "Diagnostics & Repair" section lets you test the microphone and export a one-click diagnostic package (environment info, device list, log excerpts, and a settings summary with API keys stripped, packaged as a desktop zip) to make bug reports easier.
-
-## 🛠️ Installation Troubleshooting
-
-If running `setup_win.bat` gets stuck at "creating virtual environment" or "installing dependencies", it's usually related to **disk write permissions**.
-
-**❌ Common cause: installed in a protected directory**
-- The path is under the `C:\` root, `C:\Program Files`, or `C:\Program Files (x86)`
-- Windows restricts unauthorized scripts from writing large numbers of small files in these locations
-
-**✅ Solutions (pick one):**
-1. **Change the install path (recommended)**: move the entire folder to a non-system drive such as D:, e.g. `D:\Tools\VoxProse`
-2. **Move it to your user folder**: if you only have a C: drive, put it in `C:\Users\<your-name>\Documents` or on the Desktop
-3. Right-click `setup_win.bat` → "Run as administrator"
-
-For manual steps if the model download gets stuck, see the [Install & Download Guide](安裝下載教學.md).
-
-## Development Environment Setup
-
-Requires Python 3.10–3.14:
+If you do not want to use a Release ZIP, clone the repository and run the Windows setup script. It builds the local Python environment, installs dependencies, and handles CUDA conditionally when an NVIDIA GPU is present.
 
 ```bat
 git clone https://github.com/SanHsien/voxprose.git
 cd voxprose
-
-py -3.12 -m venv venv
-venv\Scripts\activate
-
-pip install -r requirements-win.txt
-rem Only needed if you have an NVIDIA GPU:
-pip install -r requirements-cuda-win.txt
-
-python main.py
+setup_win.bat
 ```
 
-For regular end users: run `setup_win.bat` (don't place it under the `C:\` root or a protected path like `Program Files` — a user folder or a non-system drive is recommended).
+Avoid protected paths such as `C:\Program Files`.
 
-Packaging a portable ZIP (for developers):
-
-```powershell
-.\release_win.ps1            # Full: includes CUDA + medium model (~4GB)
-.\release_win.ps1 -Lite      # Lite: no CUDA, no model, downloaded online on first launch (~300MB)
-.\release_win.ps1 -NoModel   # NoModel: includes CUDA, no model, downloaded online on first launch (~1-1.5GB)
-python tools\verify_release_zip.py dist\ShengChengWen-Windows-Lite-vX.Y.Z.zip
-```
-
-Pushing a `v*` tag triggers `.github/workflows/release.yml`, which builds both the Lite and NoModel versions and publishes them only after the ZIP CRC, UTF-8 filenames, and required resources pass validation (manually triggering via `workflow_dispatch` only produces build artifacts). See the "Windows Release 實機驗證" section in [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md) for the full Windows verification procedure. Dependabot checks Python and GitHub Actions dependencies weekly, `dependency-freshness.yml` compares direct dependencies with PyPI and tracks open PRs monthly, and CodeQL runs an extended weekly security scan. Windows and CUDA dependency PRs always require human review and are never auto-merged.
-
-## Project Structure
+## Workflow
 
 ```text
-main.py                 Windows application entry point
-ui/                     Main app, settings, tray, and floating UI
-audio/                  Recording and RMS/Silero VAD
-stt/                    Local and cloud speech recognition engines
-llm/                    Text-polishing provider integrations
-output/                 Pastes results into the focused input field
-soul/                   Scenario templates and output formats
-vocab/ memory/ stats/   Vocabulary, long-term memory, and usage statistics
-tests/                  pytest suite and manual hardware validators
-docs/                   Development, decisions, upstream, and references
+Global hotkey / VAD
+      ↓
+Recording
+      ↓
+Local Faster-Whisper or optional cloud STT
+      ↓
+(optional) LLM rewriting / scenario / formatting / translation
+      ↓
+Paste into the currently focused Windows application
 ```
 
-## Settings
+![Floating recording status window](assets/screenshot-miclevel.jpg)
 
-The config file lives at `%APPDATA%\VoxProse\` (`config_local.json` for machine-local settings, `config_global.json` participates in cloud sync); most options can be adjusted from the settings window:
+## AI and privacy boundary
 
-| Field | Description | Default |
-|------|------|--------|
-| `hotkey_ptt` | Push-to-talk hotkey (alt_r / ctrl_r / shift_r / f13-f15 / code:VK) | `alt_r` |
-| `hotkey_toggle` | Toggle hotkey | `f13` |
-| `auto_trigger_enabled` | Always-on mode (hands-free auto trigger) | `false` |
-| `vad_engine` | Always-on mode detection engine (`rms`/`silero`; normal installs directly include a compatible `onnxruntime` version; machine-specific, not cloud-synced) | `rms` |
-| `stt_engine` | Speech engine (local_whisper / groq / gemini / openrouter) | `local_whisper` |
-| `whisper_model` | Whisper model size (tiny/base/small/medium/large) | `medium` |
-| `mic_device` | Microphone input device (sounddevice device index; `null` = system default; machine-specific, not synced to cloud) | `null` |
-| `mic_gain` | Manual microphone gain (50~300, 100 = unchanged; machine-specific, not synced to cloud) | `100` |
-| `mic_gain_auto` | Whether AGC (automatic gain control) is enabled (machine-specific, not synced to cloud) | `true` |
-| `llm_enabled` | Whether AI text polishing is enabled | `false` |
-| `llm_engine` | LLM engine (ollama / openai / claude / openrouter / gemini / deepseek / qwen) | `ollama` |
-| `openrouter_model` | OpenRouter model (falls back in order if unavailable) | `google/gemini-2.5-flash` |
-| `language` | Recognition language | `zh` |
+“Local-first” does not mean every configuration is always offline. The actual data flow depends on the engines you select:
 
-## System Requirements
+| Choice | Data flow |
+|---|---|
+| Local Faster-Whisper | Audio is transcribed locally |
+| Groq / Gemini / OpenRouter STT | Audio is sent to the selected cloud recognition provider |
+| AI rewriting disabled | Recognized text is not sent to an LLM |
+| Ollama rewriting | LLM processing can stay local |
+| OpenAI / Claude / Gemini / OpenRouter and other cloud LLMs | Recognized text and required prompt context are sent to the selected provider |
 
-- Windows 10/11 (no need to have Python installed — `setup_win.bat` automatically fetches a portable Python 3.12, no admin rights required)
-- CUDA acceleration is enabled automatically with an NVIDIA GPU; without one, it falls back to CPU mode
-- 16GB+ RAM recommended
-- ~5GB of disk space (including the recognition model)
+Cloud features require the user to configure the corresponding service and API key. For sensitive material, use local STT and either disable cloud LLM processing or use local Ollama.
+
+## Core screens
+
+### Recognition and AI settings
+
+![Recognition and AI settings](assets/screenshot-pc-02.jpg)
+
+Choose the speech engine, Whisper model, and optional text-polishing engine.
+
+### Three-layer writing system
+
+![Three-layer writing system](assets/screenshot-pc-03.jpg)
+
+- **Base**: persistent writing rules.
+- **Scenario**: business, social, transcript, and other contexts.
+- **Format**: email, formal document, bullets, social post, and other output shapes.
+
+### Vocabulary memory
+
+![Vocabulary memory](assets/screenshot-pc-04.jpg)
+
+Add proper nouns manually or let frequently used terms accumulate for future recognition prompts.
+
+## System requirements
+
+- Windows 10 / 11
+- Python 3.10–3.14 when running from source
+- NVIDIA GPU optional for CUDA acceleration; CPU mode is supported
+- 16 GB+ RAM recommended
+- Several GB of disk space for runtime files and speech models
+
+## Development and verification
+
+Development setup, Windows compatibility notes, tests, packaging, and release validation are documented in [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md).
+
+Basic test command:
+
+```powershell
+python -m pytest tests/ -v
+```
+
+CI runs on Windows across Python 3.10, 3.11, 3.12, 3.13, and 3.14, compiling Python files and running pytest. Real microphone, hotkey, CUDA, model, and focused-input behavior still require Windows hardware validation.
 
 ## Documentation
 
-- [README.md](README.md): primary Traditional Chinese README
+- [README.md](README.md): primary Traditional Chinese introduction
+- [Install and model download guide](安裝下載教學.md): installation and model-download troubleshooting
 - [CHANGELOG.md](CHANGELOG.md): version history
-- [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md): development, testing, packaging, and Windows release verification
-- [docs/DECISIONS.md](docs/DECISIONS.md): design and maintenance decisions for this fork
-- [docs/UPSTREAM.md](docs/UPSTREAM.md): upstream sync status and reviewed-but-skipped changes
-- [REVIEW.md](REVIEW.md): latest project review
-- [AGENTS.md](AGENTS.md) / [SKILL.md](SKILL.md): AI-agent collaboration rules and quick index
+- [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md): development, tests, packaging, and Windows validation
+- [docs/DECISIONS.md](docs/DECISIONS.md): design and maintenance decisions
+- [docs/UPSTREAM.md](docs/UPSTREAM.md): upstream synchronization history
+- [NOTICE.md](NOTICE.md): provenance, attribution, and third-party notices
 
-## Project Source and Credits
+## Provenance
 
-This project is forked from [`jfamily4tw/voicetype4tw-mac`](https://github.com/jfamily4tw/voicetype4tw-mac). The original authors are **Jimmy (吉米丘)** and **CC58TW**; **go-mask** maintains the upstream Windows edition. This Windows-only fork is maintained by **SanHsien**. See [NOTICE.md](NOTICE.md) for provenance, version lineage, and third-party notices.
+VoxProse is a Windows-only fork of [`jfamily4tw/voicetype4tw-mac`](https://github.com/jfamily4tw/voicetype4tw-mac), derived from the VoiceType4TW / 嘴炮輸入法 `win-stable` Windows line. The original authors are **Jimmy Chiou** and **CC58TW**; the upstream Windows edition was previously maintained by **go-mask**. This fork is maintained independently by **SanHsien** under the product name 聲成文 VoxProse.
 
-For the macOS version and upstream tutorials, refer to the [upstream project's](https://github.com/jfamily4tw/voicetype4tw-mac) latest documentation. This fork is independently maintained and does not speak for the upstream project.
+See [NOTICE.md](NOTICE.md) and [docs/UPSTREAM.md](docs/UPSTREAM.md) for complete provenance. This fork does not represent the upstream project's views.
 
 ## License
 
-This project is available under the [MIT License](LICENSE). Please retain the license and the attribution listed in [NOTICE.md](NOTICE.md) when using, modifying, or redistributing it.
+VoxProse is licensed under the [MIT License](LICENSE). Keep the license and required attribution when using, modifying, or redistributing the project; see [NOTICE.md](NOTICE.md) for provenance details.
