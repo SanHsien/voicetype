@@ -41,7 +41,7 @@ stats/    使用統計
 
 ## 開發約定
 
-- 一般變更直接推 `origin/main`，不開功能分支、不開維護 PR（主人 2026-08-22 指示，全庫一致）。只有在需要他人審查、或改動風險高到值得先讓 CI 在 PR 上跑一輪時，才退回 **branch → PR → CI**。
+- 一般變更直接推 `origin/main`，不開功能分支、不開維護 PR（2026-08-22 起，全庫一致）。只有在需要他人審查、或改動風險高到值得先讓 CI 在 PR 上跑一輪時，才退回 **branch → PR → CI**。
 - 實際執行依賴以 `requirements-win.txt` 為主；NVIDIA GPU 再加 `requirements-cuda-win.txt`。`pyproject.toml` 主要提供 metadata 與 pytest 設定，不取代現有 Windows 安裝流程。
 - 新增 `config.py` 的設定欄位時，同時判斷是否屬於機器特定設定並加入 `LOCAL_KEYS`。
 - 依賴更新一律人工審查。PyQt6、Whisper、ONNX Runtime、CUDA 與 Release actions 可能影響 Windows 真機或發行包，不自動核准／合併 Dependabot PR。
@@ -104,7 +104,7 @@ CI 在 Windows runner 上測 Python 3.10–3.14，並做全 repo `py_compile` + 
 ## 對外邊界：PR 只打本 fork
 
 - **PR、push、release 一律指向 `SanHsien/voxprose`。** 對上游 `jfamily4tw/voicetype4tw-mac` 開 PR、push 或發 release
-  需要主人在當次對話明確同意回貢；「fork 一份」「建開發環境」「比照其他 repo」都不是同意。
+  需要維護者在當次對話明確同意回貢；「fork 一份」「建開發環境」「比照其他 repo」都不是同意。
 - 根因是機制不是粗心：`gh` 在 fork clone 的**預設 repo 就是上游**（`gh repo set-default --view` 會回
   `jfamily4tw/voicetype4tw-mac`），裸跑 `gh pr create` 必然打上去。每個 clone 先跑一次
   `gh repo set-default SanHsien/voxprose`。

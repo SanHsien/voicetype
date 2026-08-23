@@ -97,7 +97,7 @@
 
 ### Removed
 
-- **keystrike 死碼清除**：移除 `paths.KEYSTRIKE_LOG_PATH`／`touch()` 佔位、`config.py` 的 `separate_keystrike_log` 死開關、`main.py` 啟動記錄、`ui/settings/general_page.py` 的勾選框與「檢視熱鍵紀錄」按鈕、`utils/diagnostics.py` 的 `keystrike.log` 收集項。推翻 `REVIEW.md` 26-4 原「決定不做」判定（主人 2026-07-23 明示指示清除），詳見 `docs/DECISIONS.md`。
+- **keystrike 死碼清除**：移除 `paths.KEYSTRIKE_LOG_PATH`／`touch()` 佔位、`config.py` 的 `separate_keystrike_log` 死開關、`main.py` 啟動記錄、`ui/settings/general_page.py` 的勾選框與「檢視熱鍵紀錄」按鈕、`utils/diagnostics.py` 的 `keystrike.log` 收集項。推翻 `REVIEW.md` 26-4 原「決定不做」判定（維護者 2026-07-23 明示指示清除），詳見 `docs/DECISIONS.md`。
 
 ### Investigated (no change)
 

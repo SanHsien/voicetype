@@ -50,7 +50,7 @@ class SubprocessWhisperTranscribeParamsTest(unittest.TestCase):
         結果從未被使用。"""
         model = MagicMock()
         model.transcribe.return_value = ("segments", "info")
-        vocab_prompt = "以下是繁體中文的語音內容，常用詞彙包含：小克、Fable。"
+        vocab_prompt = "以下是繁體中文的語音內容，常用詞彙包含：聲成文、Fable。"
 
         _run_transcribe(model, "audio_np", "zh", vocab_prompt)
 

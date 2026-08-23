@@ -103,12 +103,12 @@
 ## 2026-07-23 — keystrike 死碼清除（推翻 REVIEW 26-4「決定不做」）
 
 - **背景**：同日稍早的隱私與加固審查（見下一節）已查明 `keystrike.log` 從未被實際寫入、`separate_keystrike_log` 開關無程式碼讀取，並判定「無隱私疑慮、死碼留給未來需要時再處理」（REVIEW.md 26-4 🚫 決定不做）。
-- **決定**：主人本次明示改為指示清除，推翻原判定。已移除：`paths.py` 的 `KEYSTRIKE_LOG_PATH` 常數與 `initialize_paths()` 的 `touch()` 佔位、`config.py` 的 `separate_keystrike_log` 死開關、`main.py` 啟動時的 keystrike 路徑記錄、`ui/settings/general_page.py` 的勾選框與「檢視熱鍵紀錄」按鈕（連帶移除 `ui/settings_window.py` 兩處讀寫該勾選框的殘留代碼）、`utils/diagnostics.py` 的 `keystrike.log` 收集項。全 repo grep `keystrike`（不分大小寫）確認程式碼零殘留；`CHANGELOG.md`／`docs/DECISIONS.md`／`REVIEW.md` 的既有歷史紀錄段落原文保留，僅 REVIEW.md 26-4 狀態回註為 ✅ 已修。
-- **理由**：既然功能本來就沒人用、也沒有計劃要接線，留著死碼只會誤導後續接手者（同類判斷見 `paths.py` 頂部關於 `VOCAB_DIR` 等常數的死碼清理記錄）；主人的清除指示優先於先前「留給未來」的保守判斷。
+- **決定**：維護者本次明示改為指示清除，推翻原判定。已移除：`paths.py` 的 `KEYSTRIKE_LOG_PATH` 常數與 `initialize_paths()` 的 `touch()` 佔位、`config.py` 的 `separate_keystrike_log` 死開關、`main.py` 啟動時的 keystrike 路徑記錄、`ui/settings/general_page.py` 的勾選框與「檢視熱鍵紀錄」按鈕（連帶移除 `ui/settings_window.py` 兩處讀寫該勾選框的殘留代碼）、`utils/diagnostics.py` 的 `keystrike.log` 收集項。全 repo grep `keystrike`（不分大小寫）確認程式碼零殘留；`CHANGELOG.md`／`docs/DECISIONS.md`／`REVIEW.md` 的既有歷史紀錄段落原文保留，僅 REVIEW.md 26-4 狀態回註為 ✅ 已修。
+- **理由**：既然功能本來就沒人用、也沒有計劃要接線，留著死碼只會誤導後續接手者（同類判斷見 `paths.py` 頂部關於 `VOCAB_DIR` 等常數的死碼清理記錄）；維護者的清除指示優先於先前「留給未來」的保守判斷。
 
 ## 2026-07-23 — 隱私與加固審查（實機驗證前的靜態修 bug 輪）
 
-v3.3.0 已發佈、實機驗證前，主人指示做能做的修 bug／加固。五項依序處理，每項 atomic commit。
+v3.3.0 已發佈、實機驗證前，維護者指示做能做的修 bug／加固。五項依序處理，每項 atomic commit。
 
 ### 一、keystrike.log 隱私審查——無需修改
 
@@ -126,7 +126,7 @@ v3.3.0 已發佈、實機驗證前，主人指示做能做的修 bug／加固。
 
 - **背景**：本專案歷史上三個「引擎自始壞掉」bug（`stt/gemini_stt.py`／`stt/openrouter_stt.py` 的 soundfile 重編碼、`stt/subprocess_whisper.py` 的 vocab prompt IPC 欄位未讀取）都是被 `except Exception` 吞掉才長期未被發現。
 - **掃描結果**：全 repo（不含 tests/）165 處 `except`，扣掉 4 處在 tests 目錄，161 處production code。逐一讀 context 分類：**43 處**判定「該補 log 或該收窄型別」並修正；其餘 **118 處** 已有 log/print/使用者可見的錯誤訊息，或是刻意設計成靜默且有正當理由（如 `utils/diagnostics.py` 的診斷收集器本身就該「單一收集項失敗不影響整包匯出」、`__del__`／行程即將 `os._exit()` 前的清理、bare `except: pass` 純屬 cosmetic beep 失敗）。
-- **修正原則**：只加 log／收窄例外型別，不改變任何 fallback 行為語義（讀不到設定檔一樣退回 default，串流關閉一樣跳出迴圈）——這是主人明確要求的邊界，避免修 log 順便動到行為造成新回歸。
+- **修正原則**：只加 log／收窄例外型別，不改變任何 fallback 行為語義（讀不到設定檔一樣退回 default，串流關閉一樣跳出迴圈）——這是維護者明確要求的邊界，避免修 log 順便動到行為造成新回歸。
 - **高風險項目**（原本完全靜默、且屬於使用者會實際感知到「東西無聲壞掉」的路徑）：`config.py` load_config() 5 處設定檔損毀靜默重置、`memory/manager.py`／`stats/tracker.py` 資料檔損毀靜默清空、`ui/app.py` 的靈魂情境／私人詞庫／長期記憶三處 LLM prompt 注入失敗靜默跳過、`audio/recorder.py` 錄音輪詢迴圈例外靜默中斷、`stt/subprocess_whisper.py`／`stt/local_whisper.py` 的 `build_vocab_prompt()` 失敗靜默退回預設 prompt（與歷史 bug 同一條路徑）、多個 UI 設定頁（`vocab_mem_page.py`／`stats_page.py`／`sync_page.py`）清單刷新失敗畫面「無聲空白」。
 - **順手修正**：`main.py`／`stt/subprocess_whisper.py`／`hotkey/listener.py`／`ui/mic_indicator.py`／`ui/floating_button.py` 等處的 bare `except:` 收窄為 `except Exception:`，避免誤吞 `KeyboardInterrupt`/`SystemExit`；`ui/settings/soul_page.py:129` 從 bare except 收窄為 `(json.JSONDecodeError, TypeError, ValueError)`（那裡只可能是 JSON 解析錯誤）。
 
