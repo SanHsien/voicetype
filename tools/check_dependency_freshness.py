@@ -20,6 +20,7 @@ REQUIREMENTS_FILES = (
     ROOT / "requirements-win.txt",
     ROOT / "requirements-cuda-win.txt",
 )
+DEFERRALS_PATH = ROOT / ".github" / "dependency-deferrals.json"
 
 _PACKAGE_RE = re.compile(r"^([A-Za-z0-9_.-]+)\s*(.*)$")
 _SPECIFIER_RE = re.compile(
@@ -115,10 +116,41 @@ def is_blocked_by_upper_bound(version: str, upper: Optional[Dict[str, str]]) -> 
     return candidate > ceiling
 
 
+def load_deferrals(path: Path = DEFERRALS_PATH) -> "Dict[str, Dict[str, str]]":
+    """讀取已核准的暫緩清單；檔案不存在或格式壞掉時一律視為沒有暫緩。"""
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    if not isinstance(data, dict):
+        return {}
+    return {normalize_package_name(name): entry for name, entry in data.items()}
+
+
+def deferred_reason(
+    name: str, latest: Optional[str], deferrals: "Dict[str, Dict[str, str]]"
+) -> Optional[str]:
+    """暫緩只對「當初判斷的那個版本」有效。
+
+    上游一發更新的版本，deferredLatest 就對不上，這一列會重新浮出來要求再看一次——
+    這正是暫緩與「永久忽略」的差別。
+    """
+    entry = deferrals.get(normalize_package_name(name))
+    if not isinstance(entry, dict):
+        return None
+    reason = entry.get("reason")
+    if not isinstance(reason, str) or not reason.strip():
+        return None
+    if entry.get("deferredLatest") != latest:
+        return None
+    return reason
+
+
 def collect_status(
     packages: "Dict[str, Dict[str, object]]",
 ) -> "List[Dict[str, object]]":
     """收集 repo 宣告範圍、PyPI 最新版與維護狀態。"""
+    deferrals = load_deferrals()
     rows = []
     for package in packages.values():
         minimum = str(package["minimum"])
@@ -126,7 +158,10 @@ def collect_status(
         check_failed = not minimum or latest is None
         baseline_behind = bool(minimum and latest and is_newer_version(latest, minimum))
         blocked = bool(latest and is_blocked_by_upper_bound(latest, package.get("upper")))
-        needs_attention = bool(blocked or check_failed)
+        deferred = deferred_reason(str(package["name"]), latest, deferrals)
+        # 有核准暫緩就不再要求注意，但 blocked_by_upper 保留原值：報告要看得出
+        # 這一列本來就超出上限，只是已經判斷過。
+        needs_attention = bool((blocked and deferred is None) or check_failed)
         rows.append(
             {
                 **package,
@@ -134,6 +169,7 @@ def collect_status(
                 "baseline_behind": baseline_behind,
                 "blocked_by_upper": blocked,
                 "check_failed": check_failed,
+                "deferred_reason": deferred,
                 "needs_attention": needs_attention,
             }
         )
@@ -151,6 +187,8 @@ def render_markdown(rows: "List[Dict[str, object]]") -> str:
     for row in rows:
         if row["check_failed"]:
             status = "檢查失敗"
+        elif row.get("deferred_reason"):
+            status = f"已核准暫緩：{row['deferred_reason']}"
         elif row["blocked_by_upper"]:
             status = "有新版主線，需評估相容性"
         elif row["baseline_behind"]:
@@ -169,6 +207,10 @@ def render_markdown(rows: "List[Dict[str, object]]") -> str:
             "因此每次執行結果可重現。最新版未超出版本上限時，pip 仍會依 Python 版本與",
             "wheel 可用性解析相容版本；不需僅因最低支援版較舊而開啟維護 issue。",
             "版本上限外的新主線才表示「需要評估」，不代表可以直接升級。",
+            "",
+            "標為「已核准暫緩」的列是判斷過、暫時不動的，理由與當初判斷的版本記在",
+            "`.github/dependency-deferrals.json`。上游一發更新的版本，暫緩就失效、",
+            "該列會重新浮出來要求再看一次。",
             "",
             "## 處理流程",
             "",
@@ -233,7 +275,9 @@ def main() -> int:
     print(report)
 
     baseline_behind = any(bool(row["baseline_behind"]) for row in rows)
-    blocked_by_upper = any(bool(row["blocked_by_upper"]) for row in rows)
+    blocked_by_upper = any(
+        bool(row["blocked_by_upper"]) and not row.get("deferred_reason") for row in rows
+    )
     check_failed = not rows or any(bool(row["check_failed"]) for row in rows)
     if args.github_output:
         write_github_output(
