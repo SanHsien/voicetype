@@ -137,3 +137,74 @@ def test_github_output_only_requests_attention_for_blocked_or_failed(
     assert "baseline_behind=true" in values
     assert "blocked_by_upper=false" in values
     assert "needs_attention=false" in values
+
+
+def _blocked_package():
+    return {
+        "example": {
+            "name": "example",
+            "minimum": "1.0.0",
+            "upper": {"operator": "<", "version": "2"},
+            "requirement": "example>=1.0.0,<2",
+            "files": ["requirements-win.txt"],
+        }
+    }
+
+
+def test_approved_deferral_clears_attention_for_the_version_it_was_judged_against(
+    monkeypatch,
+):
+    monkeypatch.setattr(freshness, "fetch_pypi_version", lambda _name: "2.1.0")
+    monkeypatch.setattr(
+        freshness,
+        "load_deferrals",
+        lambda: {"example": {"deferredLatest": "2.1.0", "reason": "判斷過，暫不升。"}},
+    )
+
+    row = freshness.collect_status(_blocked_package())[0]
+
+    # 仍然如實記錄它超出上限，只是不再要求注意。
+    assert row["blocked_by_upper"] is True
+    assert row["deferred_reason"] == "判斷過，暫不升。"
+    assert row["needs_attention"] is False
+
+
+def test_deferral_lapses_when_upstream_publishes_a_newer_version(monkeypatch):
+    monkeypatch.setattr(freshness, "fetch_pypi_version", lambda _name: "2.2.0")
+    monkeypatch.setattr(
+        freshness,
+        "load_deferrals",
+        lambda: {"example": {"deferredLatest": "2.1.0", "reason": "判斷過，暫不升。"}},
+    )
+
+    row = freshness.collect_status(_blocked_package())[0]
+
+    assert row["deferred_reason"] is None
+    assert row["needs_attention"] is True
+
+
+def test_deferral_without_a_reason_is_ignored(monkeypatch):
+    monkeypatch.setattr(freshness, "fetch_pypi_version", lambda _name: "2.1.0")
+    monkeypatch.setattr(
+        freshness,
+        "load_deferrals",
+        lambda: {"example": {"deferredLatest": "2.1.0", "reason": "   "}},
+    )
+
+    row = freshness.collect_status(_blocked_package())[0]
+
+    assert row["deferred_reason"] is None
+    assert row["needs_attention"] is True
+
+
+def test_load_deferrals_returns_empty_when_the_file_is_missing_or_broken(tmp_path: Path):
+    assert freshness.load_deferrals(tmp_path / "nope.json") == {}
+    broken = tmp_path / "broken.json"
+    broken.write_text("{not json", encoding="utf-8")
+    assert freshness.load_deferrals(broken) == {}
+
+
+def test_repo_deferrals_file_is_parseable_and_every_entry_states_a_reason():
+    for name, entry in freshness.load_deferrals().items():
+        assert isinstance(entry.get("deferredLatest"), str) and entry["deferredLatest"], name
+        assert isinstance(entry.get("reason"), str) and entry["reason"].strip(), name
