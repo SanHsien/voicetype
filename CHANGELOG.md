@@ -10,6 +10,8 @@
 
 ## [Unreleased]
 
+- 依賴：`openai` 上限自 `<3` 開到 `<4`，實裝解析為 3.6.0（`chat.completions.create` 用到的 `model`／`messages`／`max_tokens`／`temperature`／`timeout` 五個參數在 3.6.0 全數仍在，經 SDK 內省確認；481 條測試全過）。`anthropic` 維持 `<1`：1.x 移除了 `messages.create` 的 `temperature`，而 `llm/claude.py` 的潤飾功能依賴 `temperature=0.1`，照升會 `TypeError`；理由與重評條件見 `docs/DECISIONS.md`。
+
 ### Added
 
 - **依賴與安全自動維護**：新增 Dependabot 每週 Python／GitHub Actions 更新、CodeQL `security-extended` 每週掃描；GitHub repo 啟用 Issues、vulnerability alerts 與 Dependabot security updates。Windows／CUDA／Release 相關更新一律人工審查，不自動合併。

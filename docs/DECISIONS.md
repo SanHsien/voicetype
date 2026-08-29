@@ -4,6 +4,14 @@
 
 > **關於歷史 commit hash**：v3.1.0 發版時 fork 開發歷史已 squash 成單一 commit（`84d1b28`）。本檔引用的更早 hash 屬 squash 前的開發過程紀錄，已不存在於 git 歷史，僅作文件內識別碼保留。
 
+## 2026-08-29 — openai 上限開到 <4；anthropic 維持 <1
+
+- **問題**：依賴新鮮度檢查列出兩筆「有新版主線，需評估相容性」——`openai>=1.30.0,<3` 對 PyPI 3.6.0、`anthropic>=0.25.0,<1` 對 1.2.0。
+- **決定（openai：採用）**：上限開到 `<4`。本 repo 對 openai 的介面面很小，只有 `llm/openai_llm.py` 一個 adapter：`OpenAI(api_key=)` 與 `chat.completions.create(model, messages, max_tokens, temperature, timeout)`，外加 `response.choices[0].message.content`。對實際安裝的 3.6.0 做內省，五個參數全數仍在。pip 解析後實裝 3.6.0，481 條測試全過。
+- **決定（anthropic：不採用，維持 `<1`）**：1.x 把 `messages.create` 的 `temperature` 拿掉了（1.2.0 的參數表是 `max_tokens, messages, model, cache_control, container, inference_geo, metadata, output_config, service_tier, stop_sequences, stream, system, thinking, tool_choice, tools, user_profile_id, ...`；新的 `output_config` 只有 `effort` 與 `format`，沒有 temperature）。`llm/claude.py` 現在傳 `temperature=0.1`，照升會直接 `TypeError`。
+- **理由**：那個 `0.1` 不是隨手寫的預設值——這支是**潤飾**功能，低溫度才能讓模型改寫而不自由發揮。升到 1.x 等於要決定「拿掉溫度控制之後，潤飾的保守度靠什麼保證」，那是產品決定不是依賴維護。另外預設模型 `claude-3-haiku-20240307` 在 1.x 是否仍受支援，沒有 API key 無法驗證。兩件事都該在同一輪一起處理，不該混進一次上限調整裡。
+- **重新評估的條件**：決定好 temperature 的替代做法（或確認預設溫度可接受）並能以真實 API key 驗一次 `refine()` 時。
+
 ## 2026-07-29 — Freshness issue 只追蹤真正超出依賴範圍的更新
 
 - **問題**：初版 checker 只要 PyPI 最新版高於 requirements 的最低支援版，就標為「可更新版本基線」並讓 `needs_attention=true`。本 repo 採 `>=最低支援版,<主版上限` 的相容範圍，範圍內最新版本來就會由 pip 解析；因此首次執行把 17 個仍在允許範圍內的套件全部列為待維護，issue #1 即使沒有 Dependabot PR 也永遠不會自動關閉。
