@@ -364,3 +364,38 @@ Apple Foundation Models 整套、Mac 打包鏈、Mac 專屬 UI 改動、`COMMON_
 - **Review 採 latest-only**：`REVIEW.md` 只放最新一次覆核，不逐版累積歷史。
 - **授權誠實揭露**：查證上游與本 fork 都沒有正式 `LICENSE` 檔，如實記錄查證過程與結論，不捏造授權聲明。
 - **理由**：讓 AI agent 接手時有一致的專案定位與驗證方式，文件需明確標註平台差異。
+
+
+## 2026-08-29：上游檢查真的看 PR 與 issue 兩個面向
+
+**決定**：`tools/check_upstream_updates.py` 補上以 GitHub REST `state=all` 收集上游 PR 與 issue
+的邏輯，結果併進報告與 `has_updates` / exit code；新增 `tests/test_upstream_tickets.py`。
+`docs/UPSTREAM.md` sync-points 裡的 `tickets.reviewed_pr_through` / `reviewed_issue_through`
+不動。
+
+**理由**：那兩個欄位早就寫在 sync-points 裡，但**沒有任何程式讀它們**——檢查器只比對各分支的
+`last_reviewed`。PR 與 issue 不是「查過沒發現」，是根本沒查，而每週的排程報告長得跟查過一樣綠。
+這是艦隊層級的問題（`SanHsien/repo-fleet-ops` 的 `docs/INCIDENTS.md` 第十條，24 個 fork 裡 21 個
+都這樣）。
+
+三個實作決定：
+
+- **走本檔既有的 urllib + `GITHUB_TOKEN` 路徑，不引 `gh`。** 艦隊其他 repo 用 `gh`，但這個 repo
+  的上游查詢一直是 REST；多引一個 CLI 依賴等於多一條行為不同的路。workflow 本來就給了
+  `GITHUB_TOKEN`，不需要改。
+- **`state=all`**：一個項目在兩次排程之間被開了又關，對本 fork 來說仍然是從沒審過；而未合併就
+  關閉的 PR 永遠不會出現在 commit 軸上。
+- **查詢失敗記成 error 不是空清單**，併進既有的「不把這次結果當成確認沒有更新」的非 0 exit code。
+
+**兩個實作陷阱（測試抓到的）**：
+
+1. GitHub 的 issue 端點會把 PR 一起回傳（兩者共用編號空間）。過濾要用「`pull_request` 欄位在不在」
+   判斷，**不能用真假值**——回傳空物件時 PR 會被當成 issue 混進來，兩個面向重複計數。
+2. 一開始沿用艦隊其他 repo 的 `watermark` 命名，被 `test_no_watermark_jargon_in_source_module`
+   擋下來。本 repo 明文只用 `last_merged` / `last_reviewed`，已改成 `last_reviewed_number`。
+
+**證據**：`python -m pytest tests/ -q` → 483 passed / 10 skipped；實跑檢查器 exit 0，報告多出
+「上游 Pull requests」與「上游 Issues」兩節，分別停在 `#9` 與 `#8`、之後皆無新項目。
+
+**觸發條件**：報告列出項目時逐筆判斷，理由寫進本檔，再推進 sync-points 的
+`tickets.reviewed_*_through`。

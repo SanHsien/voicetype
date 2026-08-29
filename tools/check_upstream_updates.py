@@ -182,6 +182,128 @@ def fetch_new_commits(
     return rows
 
 
+def fetch_new_tickets(
+    repo: str,
+    kind: str,
+    last_reviewed_number: int,
+    token: Optional[str] = None,
+) -> List[Dict[str, object]]:
+    """回傳編號大於 `last_reviewed_number` 的上游 PR 或 issue（**含已關閉的**）。
+
+    `state=all` 是刻意的：一個項目在兩次排程之間被開了又關，對本 fork 來說仍然
+    是從沒審過——而且**未合併就關閉**的 PR 永遠不會出現在 commit 軸上，那正是
+    「上游拒收、但可能對本 fork 有價值」的一類。
+
+    走本檔既有的 REST 路徑而不是 `gh`：這個 repo 的上游查詢一直是 urllib +
+    `GITHUB_TOKEN`，多引一個 CLI 依賴等於多一條行為不同的路。
+
+    issue 端點會把 PR 也一起回傳（GitHub 的 issue 與 PR 共用編號空間），所以
+    `kind == "issue"` 時要濾掉帶 `pull_request` 欄位的項目，否則 PR 會被數兩次。
+    """
+    per_page = 100
+    endpoint = "pulls" if kind == "pr" else "issues"
+    items: List[Dict[str, object]] = []
+    for page in range(1, 11):  # 上限 1000 筆，跟艦隊其他檢查器一致
+        url = (
+            f"https://api.github.com/repos/{repo}/{endpoint}"
+            f"?state=all&sort=created&direction=desc&per_page={per_page}&page={page}"
+        )
+        batch = _github_request(url, token)
+        if not isinstance(batch, list) or not batch:
+            break
+        for item in batch:
+            number = int(item["number"])
+            if number <= last_reviewed_number:
+                # 依 created 由新到舊排序，遇到已審視過的編號就沒有更新的了。
+                return sorted(items, key=lambda entry: entry["number"])
+                # 用「欄位在不在」判斷，不要用真假值：GitHub 曾回傳空物件，
+            # 那樣 PR 會被當成 issue 混進來，兩個面向重複計數。
+            if kind == "issue" and "pull_request" in item:
+                continue
+            items.append({"number": number, "title": item.get("title", "")})
+        if len(batch) < per_page:
+            break
+    return sorted(items, key=lambda entry: entry["number"])
+
+
+def collect_ticket_results(
+    sync_points: Dict[str, object],
+    repo: Optional[str] = None,
+    token: Optional[str] = None,
+) -> List[Dict[str, object]]:
+    """PR 與 issue 兩個面向各查一次，查詢失敗記成 error 而不是空清單。
+
+    「沒查到」和「沒有」在綠色報告裡長得一樣，只有一個是真的；把兩者混成一個，
+    就是 fork 在沒有人決定的情況下停止注意上游的方式。
+    """
+    effective_repo = repo or sync_points.get("repo") or DEFAULT_REPO
+    tickets = sync_points.get("tickets") or {}
+
+    results: List[Dict[str, object]] = []
+    for kind, label in (("pr", "Pull requests"), ("issue", "Issues")):
+        last_reviewed_number = int(tickets.get(f"reviewed_{kind}_through", 0) or 0)
+        try:
+            items = fetch_new_tickets(
+                effective_repo, kind, last_reviewed_number, token=token
+            )
+            results.append(
+                {"kind": kind, "label": label,
+                 "last_reviewed_number": last_reviewed_number,
+                 "items": items, "error": None}
+            )
+        except (
+            urllib.error.URLError,
+            urllib.error.HTTPError,
+            json.JSONDecodeError,
+            ValueError,
+            KeyError,
+        ) as exc:
+            results.append(
+                {"kind": kind, "label": label,
+                 "last_reviewed_number": last_reviewed_number,
+                 "items": [], "error": str(exc)}
+            )
+    return results
+
+
+def render_ticket_markdown(ticket_results: List[Dict[str, object]]) -> str:
+    lines: List[str] = []
+    for result in ticket_results:
+        lines.append(f"## 上游 {result['label']}")
+        lines.append("")
+        lines.append(
+            f"已審視至 `#{result['last_reviewed_number']}`（查詢用 `state=all`）。"
+        )
+        lines.append("")
+        if result["error"]:
+            lines.append(
+                "**未檢查**：查詢失敗，不把這次結果當成「確認沒有更新」。"
+            )
+            lines.append("")
+            lines.append(f"```text\n{result['error']}\n```")
+            lines.append("")
+            continue
+        items = result["items"]
+        if not items:
+            lines.append("已審視編號之後沒有新項目。")
+            lines.append("")
+            continue
+        lines.append(f"已審視編號之後有 {len(items)} 筆待審視。")
+        lines.append("")
+        lines.append("| 項目 | 標題 |")
+        lines.append("| --- | --- |")
+        for item in items:
+            title = str(item["title"]).replace("|", "\\|")
+            lines.append(f"| #{item['number']} | {title} |")
+        lines.append("")
+        lines.append(
+            f"逐筆判斷後把理由寫進 `docs/DECISIONS.md`，再推進 sync-points 的 "
+            f"`tickets.reviewed_{result['kind']}_through`。"
+        )
+        lines.append("")
+    return "\n".join(lines)
+
+
 def collect_branch_results(
     sync_points: Dict[str, object],
     repo: Optional[str] = None,
@@ -329,14 +451,24 @@ def main() -> int:
     effective_repo = args.repo or sync_points.get("repo") or DEFAULT_REPO
 
     results = collect_branch_results(sync_points, repo=args.repo, token=token)
+    ticket_results = collect_ticket_results(sync_points, repo=args.repo, token=token)
     report = render_markdown(results, effective_repo)
+    report = report.rstrip("\n") + "\n\n" + render_ticket_markdown(ticket_results)
 
     output_path = Path(args.output)
     output_path.write_text(report, encoding="utf-8")
     print(report)
 
-    has_updates = any(bool(r["commits"]) for r in results)
-    has_error = any(r["error"] for r in results)
+    # PR 與 issue 跟 commit 用同一個訊號。sync-points 一直記著這兩個
+    # reviewed_*_through，卻沒有
+    # 任何程式讀它們——那兩個面向不是「查過沒發現」，是根本沒查，而報告長得跟
+    # 查過一樣綠。
+    has_updates = any(bool(r["commits"]) for r in results) or any(
+        bool(r["items"]) for r in ticket_results
+    )
+    has_error = any(r["error"] for r in results) or any(
+        r["error"] for r in ticket_results
+    )
 
     if args.github_output:
         write_github_output(has_updates, output_path)
